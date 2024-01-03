@@ -64,6 +64,14 @@ export class Server implements ServerInterface {
             }
           });
         }
+      
+        if (err.code === 'BAD_REQUEST') {
+          return res.status(400).json({
+            error: {
+              message: err.message,
+            }
+          });
+        }
 
         return res.status(500).json({
           error: {

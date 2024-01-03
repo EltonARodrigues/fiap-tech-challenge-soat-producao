@@ -5,7 +5,7 @@ import { ItemDoPedidoDTO } from "~domain/entities/types/itensPedidoType";
 import { PedidoDTO, StatusDoPedido, statusDoPedido } from "~domain/entities/types/pedidoType";
 
 import FaturaModel from "./faturaModel";
-import ItemDoPedidoModel from "./itemPedidoModel";
+// import ItemDoPedidoModel from "./itemPedidoModel";
 
 class PedidoModel extends Model<PedidoDTO> implements PedidoDTO {
   public id!: string;
@@ -33,10 +33,10 @@ class PedidoModel extends Model<PedidoDTO> implements PedidoDTO {
           type: DataTypes.STRING,
           allowNull: true,
         },
-        faturaId: {
-          type: DataTypes.UUID,
-          allowNull: true,
-        },
+        // faturaId: {
+        //   type: DataTypes.UUID,
+        //   allowNull: true,
+        // },
         status: {
           type: DataTypes.ENUM,
           allowNull: false,
@@ -51,10 +51,10 @@ class PedidoModel extends Model<PedidoDTO> implements PedidoDTO {
             statusDoPedido.FALHA
           ],
         },
-        valor: {
-          type: DataTypes.FLOAT,
-          allowNull: false,
-        },
+        // valor: {
+        //   type: DataTypes.FLOAT,
+        //   allowNull: false,
+        // },
         retiradoEm: {
           type: DataTypes.DATE,
           allowNull: true,
@@ -88,11 +88,11 @@ class PedidoModel extends Model<PedidoDTO> implements PedidoDTO {
       as: "fatura",
     });
 
-    this.hasMany(ItemDoPedidoModel, {
-      foreignKey: "pedidoId",
-      sourceKey: "id",
-      as: "itens",
-    });
+    // this.hasMany(ItemDoPedidoModel, {
+    //   foreignKey: "pedidoId",
+    //   sourceKey: "id",
+    //   as: "itens",
+    // });
   }
 }
 

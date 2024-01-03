@@ -17,12 +17,9 @@ export type ItensDoPedido = Array<ItemDoPedidoInput>;
 export interface ItemDoPedidoDTO {
   id: string;
   produtoId: string;
-  pedidoId: string;
+  pedidoId?: string;
   quantidade: number;
   valorUnitario: number;
   valorTotal: number;
-  observacao: string | null;
-  createdAt: Date;
-  updatedAt: Date | null;
-  deletedAt: Date | null;
+  observacao?: string | null | undefined;
 } 

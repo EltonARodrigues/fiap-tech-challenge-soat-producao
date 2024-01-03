@@ -1,20 +1,16 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import throwError from "handlerError/handlerError";
 
-import { statusDePagamento } from "~domain/entities/fatura";
 import ItemPedido from "~domain/entities/itemPedido";
 import Pedido from "~domain/entities/pedido";
 import Produto from "~domain/entities/produto";
-import { ItemDoPedidoInput } from "~domain/entities/types/itensPedidoType";
-import { PagamentoDTO } from "~domain/entities/types/PagamentoType";
+import { ItemDoPedidoDTO, ItemDoPedidoInput } from "~domain/entities/types/itensPedidoType";
 import {
   PedidoDTO,
   PedidoInput,
-  statusDoPedido,
 } from "~domain/entities/types/pedidoType";
-import CheckoutRepository from "~domain/repositories/checkoutRepository";
 import FaturaRepository from "~domain/repositories/faturaRepository";
-import PedidoRepository, { queryStatusPagamentoInput } from "~domain/repositories/pedidoRepository";
+import PedidoRepository from "~domain/repositories/pedidoRepository";
 import ProdutoRepository from "~domain/repositories/produtoRepository";
 
 import {
@@ -22,23 +18,18 @@ import {
   RemoveItemInput,
 } from "../entities/types/pedidoService.type";
 
-import FaturaUseCase from "./faturaUseCase";
 
 export default class PedidoUseCase {
   static async buscaPedido(
     pedidoRepository: PedidoRepository,
-    produtoRepository: ProdutoRepository,
     pedidoId: string,
     clienteId?: string | null
   ) {
-    const itensAtuais = await PedidoUseCase.retornaItensPedido(
-      pedidoRepository,
-      produtoRepository,
-      pedidoId
-    );
+
     const pedido = await pedidoRepository.retornaPedido(pedidoId, clienteId);
 
     if (pedido) {
+      const itensAtuais = pedido?.itens?.map((item) => new ItemPedido(item));
       return new Pedido(pedido, itensAtuais);
     }
 
@@ -50,11 +41,10 @@ export default class PedidoUseCase {
     pedidoInput: PedidoInput
   ): Promise<PedidoDTO> {
     const pedido = new Pedido(pedidoInput);
-    return pedidoRepository.criaPedido(pedido);
+    return pedidoRepository.criaPedido(pedido.toObject());
   }
 
   static async realizaPedido(
-    checkoutRepository: CheckoutRepository,
     faturaRepository: FaturaRepository,
     pedidoRepository: PedidoRepository,
     produtoRepository: ProdutoRepository,
@@ -62,7 +52,6 @@ export default class PedidoUseCase {
   ): Promise<PedidoDTO | null> {
     const pedido = await PedidoUseCase.buscaPedido(
       pedidoRepository,
-      produtoRepository,
       realizaPedidoInput.pedidoId,
       realizaPedidoInput.clienteId
     );
@@ -73,18 +62,8 @@ export default class PedidoUseCase {
 
     pedido.entregaRascunho();
 
-    const fatura = await FaturaUseCase.geraFatura(
-      realizaPedidoInput.metodoDePagamentoId,
-      pedido,
-      faturaRepository
-    );
-    const faturaAtualizada = await checkoutRepository.geraCobranca(
-      fatura,
-      faturaRepository
-    );
-    pedido.faturaId = faturaAtualizada.id;
-
-    return pedidoRepository.atualizaPedido(pedido);
+    const itensAtuais = pedido?.itens?.map((item) => new ItemPedido(item));
+    return new Pedido(pedido, itensAtuais);
   }
 
   static async retornaProximoPedidoFila(
@@ -93,11 +72,7 @@ export default class PedidoUseCase {
   ) {
     const proximoPedido = await pedidoRepository.retornaProximoPedidoFila();
     if (proximoPedido) {
-      const itensAtuais = await PedidoUseCase.retornaItensPedido(
-        pedidoRepository,
-        produtoRepository,
-        proximoPedido.id
-      );
+      const itensAtuais = proximoPedido?.itens?.map((item) => new ItemPedido(item));
       return new Pedido(proximoPedido, itensAtuais);
     }
 
@@ -112,7 +87,6 @@ export default class PedidoUseCase {
     const pedido = pedidoId
       ? await PedidoUseCase.buscaPedido(
         pedidoRepository,
-        produtoRepository,
         pedidoId
       )
       : await PedidoUseCase.retornaProximoPedidoFila(
@@ -122,7 +96,10 @@ export default class PedidoUseCase {
 
     if (pedido) {
       pedido.emPreparo();
-      return pedidoRepository.atualizaPedido(pedido);
+      const pedidoAtualizado = await pedidoRepository.atualizaPedido(pedido.toObject())
+      const itensAtuais = pedidoAtualizado?.itens?.map((item) => new ItemPedido(item));
+    
+      return new Pedido(pedidoAtualizado, itensAtuais);
     }
 
     return null;
@@ -135,7 +112,6 @@ export default class PedidoUseCase {
   ): Promise<PedidoDTO> {
     const pedido = await PedidoUseCase.buscaPedido(
       pedidoRepository,
-      produtoRepository,
       pedidoId
     );
 
@@ -145,7 +121,10 @@ export default class PedidoUseCase {
 
     pedido.pronto();
 
-    return pedidoRepository.atualizaPedido(pedido);
+    const pedidoAtualizado = await pedidoRepository.atualizaPedido(pedido.toObject())
+    const itensAtuais = pedidoAtualizado?.itens?.map((item) => new ItemPedido(item));
+  
+    return new Pedido(pedidoAtualizado, itensAtuais);
   }
 
   static async entregaPedido(
@@ -155,7 +134,6 @@ export default class PedidoUseCase {
   ): Promise<PedidoDTO> {
     const pedido = await PedidoUseCase.buscaPedido(
       pedidoRepository,
-      produtoRepository,
       pedidoId
     );
 
@@ -165,7 +143,10 @@ export default class PedidoUseCase {
 
     pedido.entregue();
 
-    return pedidoRepository.atualizaPedido(pedido);
+    const pedidoAtualizado = await pedidoRepository.atualizaPedido(pedido.toObject())
+    const itensAtuais = pedidoAtualizado?.itens?.map((item) => new ItemPedido(item));
+  
+    return new Pedido(pedidoAtualizado, itensAtuais);
   }
 
   static async adicionaItem(
@@ -175,9 +156,8 @@ export default class PedidoUseCase {
   ): Promise<PedidoDTO | null> {
     const pedido = await PedidoUseCase.buscaPedido(
       pedidoRepository,
-      produtoRepository,
-      itemDoPedidoInput.pedidoId as string,
-      itemDoPedidoInput.clienteId as string
+      itemDoPedidoInput.pedidoId,
+      itemDoPedidoInput.clienteId
     );
 
     if (!pedido) {
@@ -185,7 +165,7 @@ export default class PedidoUseCase {
     }
 
     const produtoEncontrado = await produtoRepository.retornaProduto(
-      itemDoPedidoInput.produtoId as string
+      itemDoPedidoInput.produtoId
     );
 
     if (!produtoEncontrado) {
@@ -196,40 +176,14 @@ export default class PedidoUseCase {
     itemDoPedidoInput.valorUnitario = produto.retornaPreco();
     itemDoPedidoInput.produtoId = produto.id;
 
-    const novoItem = new ItemPedido(itemDoPedidoInput);
+    const novoItem = new ItemPedido(itemDoPedidoInput as ItemDoPedidoDTO);
 
     pedido.adicionarItem(novoItem);
 
-    return pedidoRepository.atualizaPedido(pedido);
-  }
-
-  static async retornaItensPedido(
-    pedidoRepository: PedidoRepository,
-    produtoRepository: ProdutoRepository,
-    pedidoId: string
-  ): Promise<ItemPedido[] | null> {
-    const itensPedido = await pedidoRepository.retornaItensPedido(pedidoId);
-
-    if (itensPedido) {
-      const items = itensPedido?.map(async (item) => {
-        const produtoEncontrado = await produtoRepository.retornaProduto(
-          item.produtoId
-        );
-
-        if (!produtoEncontrado) {
-          throwError("NOT_FOUND", "Produto nao encontrado");
-        }
-
-        const produto = new Produto(produtoEncontrado);
-        item.valorUnitario = produto.retornaPreco();
-        item.produtoId = produto.id;
-        return new ItemPedido(item);
-      });
-
-      return await Promise.all(items);
-    }
-
-    return null;
+    const pedidoAtualizado = await pedidoRepository.atualizaPedido(pedido.toObject())
+    const itensAtuais = pedidoAtualizado?.itens?.map((item) => new ItemPedido(item));
+  
+    return new Pedido(pedidoAtualizado, itensAtuais);
   }
 
   static async removeItem(
@@ -239,9 +193,8 @@ export default class PedidoUseCase {
   ): Promise<PedidoDTO | null> {
     const pedido = await PedidoUseCase.buscaPedido(
       pedidoRepository,
-      produtoRepository,
-      removeItemInput.pedidoId as string,
-      removeItemInput.clienteId as string
+      removeItemInput.pedidoId,
+      removeItemInput.clienteId
     );
 
     if (!pedido) {
@@ -250,7 +203,10 @@ export default class PedidoUseCase {
 
     pedido.removeItem(removeItemInput.itemId);
 
-    return pedidoRepository.atualizaPedido(pedido);
+    const pedidoAtualizado = await pedidoRepository.atualizaPedido(pedido.toObject())
+    const itensAtuais = pedidoAtualizado?.itens?.map((item) => new ItemPedido(item));
+  
+    return new Pedido(pedidoAtualizado, itensAtuais);
   }
 
   static async listaPedidos(
@@ -259,93 +215,5 @@ export default class PedidoUseCase {
     clienteId?: string
   ): Promise<Array<PedidoDTO> | null> {
     return pedidoRepository.listaPedidos(status, clienteId);
-  }
-
-  static async statusDePagamento(
-    pedidoRepository: PedidoRepository,
-    faturaRepository: FaturaRepository,
-    queryStatusPagamento: queryStatusPagamentoInput
-  ) {
-    const pedido = await pedidoRepository.retornaPedido(
-      queryStatusPagamento.pedidoId,
-      queryStatusPagamento.clienteId
-    );
-
-    if (pedido) {
-      const pedidoEntity = new Pedido(pedido);
-
-      if (!pedidoEntity.faturaId) {
-        return null;
-      }
-
-      const fatura = await faturaRepository.retornaFatura(
-        pedidoEntity.faturaId
-      );
-
-      return fatura?.statusDePagamento;
-    }
-
-    return null;
-  }
-
-  static async pagamentoReprovado(
-    pedidoRepository: PedidoRepository,
-    faturaRepository: FaturaRepository,
-    pagamento: PagamentoDTO
-  ) {
-    const fatura = await faturaRepository.pegaFatura(pagamento.pagamentoId);
-
-    if (!fatura) {
-      throwError("NOT_FOUND", "Fatura nao encontrada!");
-    }
-
-    const pedido = await pedidoRepository.retornaPedido(fatura.pedidoId);
-
-    if (pedido?.status !== statusDePagamento.AGUARDANDO_PAGAMENTO) {
-      throwError("BAD_REQUEST", `Só é permitido alterar o status do pedido quando o status é ${statusDoPedido.AGUARDANDO_PAGAMENTO}. Status Atual: ${pedido?.status}`);
-    }
-
-    faturaRepository.atualizaStatusPagamentoFatura(
-      fatura.id,
-      statusDePagamento.ERRO_AO_PROCESSAR_PAGAMENTO
-    );
-    pedidoRepository.atualizaStatusDoPedido(pedido!.id, statusDoPedido.FALHA);
-  }
-
-  static async pagamentoAprovado(
-    pedidoRepository: PedidoRepository,
-    faturaRepository: FaturaRepository,
-    pagamento: PagamentoDTO
-  ) {
-    const fatura = await faturaRepository.pegaFatura(pagamento.pagamentoId);
-
-    if (!fatura) {
-      throwError("NOT_FOUND", "Fatura nao encontrada!");
-    }
-
-    const pedido = await pedidoRepository.retornaPedido(fatura.pedidoId);
-
-    if (pedido?.status !== statusDePagamento.AGUARDANDO_PAGAMENTO) {
-      throwError("BAD_REQUEST", `Só é permitido alterar o status do pedido quando o status é ${statusDoPedido.AGUARDANDO_PAGAMENTO}. Status Atual: ${pedido?.status}`);
-
-    }
-
-    if (pedido!.valor <= pagamento.valorPagamento) {
-      // TODO validar posteriormente se faz sentido essa validacao
-      faturaRepository.atualizaStatusPagamentoFatura(
-        fatura.id,
-        statusDePagamento.PAGAMENTO_APROVADO
-      );
-      pedidoRepository.atualizaStatusDoPedido(
-        pedido!.id,
-        statusDoPedido.AGUARDANDO_PREPARO
-      );
-    } else {
-      faturaRepository.atualizaStatusPagamentoFatura(
-        fatura.id,
-        statusDePagamento.ERRO_AO_PROCESSAR_PAGAMENTO
-      );
-      pedidoRepository.atualizaStatusDoPedido(pedido!.id, statusDoPedido.FALHA);
-    }
   }
 }

@@ -3,9 +3,9 @@ import { ItemDoPedidoDTO } from "./itensPedidoType";
 export interface PedidoInput {
   id?: string;
   clienteId: string;
-  faturaId: string | null;
+  // faturaId: string | null;
   status: StatusDoPedido;
-  valor: number;
+  // valor: number;
   retiradoEm: Date | null;
   createdAt: Date;
   updatedAt: Date | null;
@@ -28,9 +28,9 @@ export type StatusDoPedido =
 export interface PedidoDTO {
   id: string;
   clienteId: string;
-  faturaId: string | null;
+  // faturaId: string | null;
   status: StatusDoPedido;
-  valor: number;
+  // valor: number;
   itens?: ItemDoPedidoDTO[];
   retiradoEm: Date | null;
   createdAt: Date;

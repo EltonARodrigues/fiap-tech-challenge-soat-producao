@@ -2,14 +2,14 @@
 import throwError from "handlerError/handlerError";
 import { v4 as uuidv4 } from "uuid";
 
-import { PedidoInput, StatusDoPedido, statusDoPedido } from "./types/pedidoType";
+import { PedidoDTO, PedidoInput, StatusDoPedido, statusDoPedido } from "./types/pedidoType";
 import { StatusDePagamento, statusDePagamento } from "./fatura";
 import ItemPedido from "./itemPedido";
 
 export default class Pedido {
   public id: string;
   public clienteId: string;
-  public faturaId: string | null;
+  // public faturaId: string | null;
   public status: StatusDoPedido;
   public valor: number;
   public itens: ItemPedido[];
@@ -21,7 +21,7 @@ export default class Pedido {
   constructor(pedidoInput: PedidoInput, itens: ItemPedido[] | null = []) {
     this.id = pedidoInput.id ?? uuidv4();
     this.clienteId = pedidoInput.clienteId;
-    this.faturaId = pedidoInput.faturaId ?? null;
+    // this.faturaId = pedidoInput.faturaId ?? null;
     this.status = pedidoInput.status ?? this.criaRascunho();
     this.itens = itens ?? [];
     this.retiradoEm = pedidoInput.retiradoEm ?? null;
@@ -30,7 +30,7 @@ export default class Pedido {
     this.updatedAt = pedidoInput.updatedAt ?? null;
 
 
-    this.valor = pedidoInput.valor ?? 0;
+    this.valor = 0;
     this.calculaTotal();
   }
 
@@ -88,7 +88,7 @@ export default class Pedido {
   }
 
   registrarFatura(faturaId: string) {
-    this.faturaId = faturaId;
+    // this.faturaId = faturaId;
   }
 
   validaValor() {
@@ -112,11 +112,30 @@ export default class Pedido {
       throwError("BAD_REQUEST", `Não é possível remover itens a um pedido que não está em rascunho`);
     }
 
+    const findItem = this.itens?.find(item => item.id === itemId);
+
+    if (!findItem) {
+      throwError("BAD_REQUEST", `Item ${itemId} do pedido nao entrado`);
+    }
+
     this.itens = this.itens?.filter(item => item.id !== itemId);
     this.calculaTotal();
   }
 
   calculaTotal() {
     this.valor = this.itens?.reduce((total: number, item: ItemPedido,) => total + item.calculaTotal(), 0) ?? 0;
+  }
+
+  toObject(): PedidoDTO {
+    return {
+      id: this.id,
+      clienteId: this.clienteId,
+      status: this.status,
+      itens: this.itens,
+      retiradoEm: this.retiradoEm,
+      createdAt: this.createdAt,
+      deletedAt: this.deletedAt,
+      updatedAt: this.updatedAt,
+    };
   }
 }

@@ -21,7 +21,7 @@ export type AdicionaItemInput = {
   quantidade: number;
   valorUnitario: number;
   valorTotal: number;
-  observacao?: string | null;
+  observacao?: string | null | undefined;
 };
 
 export type RemoveItemInput = {

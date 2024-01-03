@@ -1,11 +1,7 @@
-import { StatusDePagamento } from "~domain/entities/fatura";
 import { AdicionaItemInput, RealizaPedidoInput, RemoveItemInput } from "~domain/entities/types/pedidoService.type";
 import { PedidoDTO, PedidoInput } from "~domain/entities/types/pedidoType";
-import CheckoutRepository from "~domain/repositories/checkoutRepository";
 import FaturaRepository from "~domain/repositories/faturaRepository";
-import PedidoRepository, {
-  queryStatusPagamentoInput,
-} from "~domain/repositories/pedidoRepository";
+import PedidoRepository from "~domain/repositories/pedidoRepository";
 import ProdutoRepository from "~domain/repositories/produtoRepository";
 import PedidoUseCase from "~domain/useCases/pedidoUseCase";
 
@@ -16,9 +12,9 @@ export class PedidoController {
   ): Promise<PedidoDTO | null> {
     const pedidoInput: PedidoInput = {
       clienteId,
-      faturaId: null,
+      // faturaId: null,
       status: "Rascunho",
-      valor: 0,
+      // valor: 0,
       retiradoEm: null,
       createdAt: new Date(),
       updatedAt: null,
@@ -33,14 +29,12 @@ export class PedidoController {
   }
 
   static async realizaPedido(
-    checkoutRepository: CheckoutRepository,
     faturaRepository: FaturaRepository,
     pedidoRepository: PedidoRepository,
     produtoRepository: ProdutoRepository,
     realizaPedidoInput: RealizaPedidoInput
   ): Promise<PedidoDTO | null> {
     return await PedidoUseCase.realizaPedido(
-      checkoutRepository,
       faturaRepository,
       pedidoRepository,
       produtoRepository,
@@ -74,7 +68,7 @@ export class PedidoController {
 
   static async adicionaItem(
     pedidoRepository: PedidoRepository,
-    produtoRepository: ProdutoRepository,
+    produtoRepository: any, //TODO
     adicionaItemInput: AdicionaItemInput
   ): Promise<PedidoDTO | null> {
     return await PedidoUseCase.adicionaItem(
@@ -120,15 +114,4 @@ export class PedidoController {
     );
   }
 
-  static async statusDePagamento(
-    pedidoRepository: PedidoRepository,
-    faturaRepository: FaturaRepository,
-    queryStatusPagamento: queryStatusPagamentoInput
-  ): Promise<StatusDePagamento | null | undefined> {
-    return await PedidoUseCase.statusDePagamento(
-      pedidoRepository,
-      faturaRepository,
-      queryStatusPagamento
-    );
-  }
 }
