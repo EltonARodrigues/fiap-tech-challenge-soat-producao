@@ -2,7 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import throwError from "handlerError/handlerError";
 
 import PedidoDataBaseRepository from "~datasources/databaseNoSql/repository/pedidoDatabaseRepository";
-import ProdutoContractRepository from "~datasources/pedidoMicroservice/produtoRepository";
+import ProdutoMicroserviceComunication from "~datasources/microservices/produtoComunication";
 import { StatusDoPedido,statusDoPedido } from "~domain/entities/types/pedidoType";
 import { PedidoController } from "~interfaceAdapters/controllers/pedidoController";
 
@@ -30,7 +30,7 @@ import { validaRequisicao } from "./utils";
 
 const pedidoRouter = express.Router({});
 
-const produtoSourceRepository = new ProdutoContractRepository();
+const produtoSourceRepository = new ProdutoMicroserviceComunication();
 const dbPedidosRepository = new PedidoDataBaseRepository();
 
 
