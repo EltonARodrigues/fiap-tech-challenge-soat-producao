@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { v4 as uuidv4 } from "uuid";
 
 import { ItemDoPedidoDTO } from "~domain/entities/types/itensPedidoType";
 import { PedidoDTO, statusDoPedido } from "~domain/entities/types/pedidoType";
@@ -18,6 +19,7 @@ const ItemDoPedidoSchema = new mongoose.Schema<ItemDoPedidoDTO>({
 const PedidoSchema = new mongoose.Schema<PedidoDTO>({
   id: {
     type: String,
+    default: uuidv4,
     required: true,
   },
   clienteId: {
