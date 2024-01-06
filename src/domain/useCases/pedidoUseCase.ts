@@ -3,13 +3,12 @@ import throwError from "handlerError/handlerError";
 
 import ItemPedido from "~domain/entities/itemPedido";
 import Pedido from "~domain/entities/pedido";
-import Produto from "~domain/entities/produto";
 import { ItemDoPedidoDTO, ItemDoPedidoInput } from "~domain/entities/types/itensPedidoType";
 import {
   PedidoDTO,
   PedidoInput,
+  StatusDoPedido,
 } from "~domain/entities/types/pedidoType";
-import FaturaRepository from "~domain/repositories/faturaRepository";
 import PedidoRepository from "~domain/repositories/pedidoRepository";
 import ProdutoRepository from "~domain/repositories/produtoRepository";
 
@@ -45,9 +44,7 @@ export default class PedidoUseCase {
   }
 
   static async realizaPedido(
-    faturaRepository: FaturaRepository,
     pedidoRepository: PedidoRepository,
-    produtoRepository: ProdutoRepository,
     realizaPedidoInput: RealizaPedidoInput
   ): Promise<PedidoDTO | null> {
     const pedido = await PedidoUseCase.buscaPedido(
@@ -62,13 +59,13 @@ export default class PedidoUseCase {
 
     pedido.entregaRascunho();
 
+    const pedidoEntregue = await pedidoRepository.atualizaPedido(pedido.toObject())
     const itensAtuais = pedido?.itens?.map((item) => new ItemPedido(item));
-    return new Pedido(pedido, itensAtuais);
+    return new Pedido(pedidoEntregue, itensAtuais);
   }
 
   static async retornaProximoPedidoFila(
     pedidoRepository: PedidoRepository,
-    produtoRepository: ProdutoRepository
   ) {
     const proximoPedido = await pedidoRepository.retornaProximoPedidoFila();
     if (proximoPedido) {
@@ -81,7 +78,6 @@ export default class PedidoUseCase {
 
   static async iniciaPreparo(
     pedidoRepository: PedidoRepository,
-    produtoRepository: ProdutoRepository,
     pedidoId?: string
   ): Promise<PedidoDTO | null> {
     const pedido = pedidoId
@@ -91,7 +87,6 @@ export default class PedidoUseCase {
       )
       : await PedidoUseCase.retornaProximoPedidoFila(
         pedidoRepository,
-        produtoRepository
       );
 
     if (pedido) {
@@ -107,7 +102,6 @@ export default class PedidoUseCase {
 
   static async finalizaPreparo(
     pedidoRepository: PedidoRepository,
-    produtoRepository: ProdutoRepository,
     pedidoId: string
   ): Promise<PedidoDTO> {
     const pedido = await PedidoUseCase.buscaPedido(
@@ -129,7 +123,6 @@ export default class PedidoUseCase {
 
   static async entregaPedido(
     pedidoRepository: PedidoRepository,
-    produtoRepository: ProdutoRepository,
     pedidoId: string
   ): Promise<PedidoDTO> {
     const pedido = await PedidoUseCase.buscaPedido(
@@ -164,16 +157,15 @@ export default class PedidoUseCase {
       throwError("NOT_FOUND", "Pedido nao encontrado");
     }
 
-    const produtoEncontrado = await produtoRepository.retornaProduto(
+    const produto = await produtoRepository.retornaProduto(
       itemDoPedidoInput.produtoId
     );
 
-    if (!produtoEncontrado) {
+    if (!produto) {
       throwError("NOT_FOUND", "Produto nao encontrado");
     }
 
-    const produto = new Produto(produtoEncontrado);
-    itemDoPedidoInput.valorUnitario = produto.retornaPreco();
+    itemDoPedidoInput.valorUnitario = produto.preco;
     itemDoPedidoInput.produtoId = produto.id;
 
     const novoItem = new ItemPedido(itemDoPedidoInput as ItemDoPedidoDTO);
@@ -188,7 +180,6 @@ export default class PedidoUseCase {
 
   static async removeItem(
     pedidoRepository: PedidoRepository,
-    produtoRepository: ProdutoRepository,
     removeItemInput: RemoveItemInput
   ): Promise<PedidoDTO | null> {
     const pedido = await PedidoUseCase.buscaPedido(
@@ -211,7 +202,7 @@ export default class PedidoUseCase {
 
   static async listaPedidos(
     pedidoRepository: PedidoRepository,
-    status?: Array<string>,
+    status?: Array<StatusDoPedido> | null,
     clienteId?: string
   ): Promise<Array<PedidoDTO> | null> {
     return pedidoRepository.listaPedidos(status, clienteId);

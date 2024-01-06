@@ -1,11 +1,9 @@
 import express, { NextFunction, Request, Response } from "express";
 import throwError from "handlerError/handlerError";
 
-import FaturaDataBaseRepository from "~datasources/database/repository/faturaDatabaseRepository";
-import ProdutosDataBaseRepository from "~datasources/database/repository/produtoDatabaseRepository";
 import PedidoDataBaseRepository from "~datasources/databaseNoSql/repository/pedidoDatabaseRepository";
 import ProdutoContractRepository from "~datasources/pedidoMicroservice/produtoRepository";
-import { TipoUsuario } from "~domain/repositories/authenticationRepository";
+import { StatusDoPedido,statusDoPedido } from "~domain/entities/types/pedidoType";
 import { PedidoController } from "~interfaceAdapters/controllers/pedidoController";
 
 import {
@@ -34,8 +32,51 @@ const pedidoRouter = express.Router({});
 
 const produtoSourceRepository = new ProdutoContractRepository();
 const dbPedidosRepository = new PedidoDataBaseRepository();
-const dbProdutoRepository = new ProdutosDataBaseRepository();
-const dbFaturaRepository = new FaturaDataBaseRepository();
+
+
+/**
+ * @openapi
+ * /pedido/iniciar-pedido:
+ *   get:
+ *     summary: Cria um rascunho de pedido
+ *     tags:
+ *       - pedido
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       201:
+ *         description: pedido criado.
+ *       404:
+ *         description: pedido ou produto nao encontrado.
+ *       500:
+ *         description: Erro na api.
+ */
+pedidoRouter.get(
+  "/iniciar-pedido",
+  validaRequisicao(iniciaPedidoSchema),
+  async (req: Request<unknown, IniciaPedidoPayload>, res: Response, next: NextFunction) => {
+    try {
+      const clienteId = '111' // TODO;
+
+      if (!clienteId) {
+        throwError("NOT_FOUND","ClienteId Nao encontrado!");
+      }
+
+      const pedidoCriado = await PedidoController.iniciaPedido(
+        dbPedidosRepository,
+        clienteId
+      );
+
+      return res.status(201).json({
+        status: "success",
+        message: pedidoCriado,
+      });
+    } catch (err: unknown) {
+      console.log(`Erro ao inciar pedido: ${err}`);
+      return next(err);
+    }
+  }
+);
 
 /**
  * @openapi
@@ -148,7 +189,6 @@ pedidoRouter.delete(
 
       const pedido = await PedidoController.removeItem(
         dbPedidosRepository,
-        dbProdutoRepository,
         {
           pedidoId: params.id,
           itemId: params.idItem,
@@ -162,50 +202,6 @@ pedidoRouter.delete(
       });
     } catch (err: unknown) {
       console.log(`Erro ao deletar item ao pedido: ${err}`);
-      return next(err);
-    }
-  }
-);
-
-/**
- * @openapi
- * /pedido/iniciar-pedido:
- *   get:
- *     summary: Cria um rascunho de pedido
- *     tags:
- *       - pedido
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       201:
- *         description: pedido criado.
- *       404:
- *         description: pedido ou produto nao encontrado.
- *       500:
- *         description: Erro na api.
- */
-pedidoRouter.get(
-  "/iniciar-pedido",
-  validaRequisicao(iniciaPedidoSchema),
-  async (req: Request<unknown, IniciaPedidoPayload>, res: Response, next: NextFunction) => {
-    try {
-      const clienteId = '111' // TODO;
-
-      if (!clienteId) {
-        throwError("NOT_FOUND","ClienteId Nao encontrado!");
-      }
-
-      const pedidoCriado = await PedidoController.iniciaPedido(
-        dbPedidosRepository,
-        clienteId
-      );
-
-      return res.status(201).json({
-        status: "success",
-        message: pedidoCriado,
-      });
-    } catch (err: unknown) {
-      console.log(`Erro ao inciar pedido: ${err}`);
       return next(err);
     }
   }
@@ -257,9 +253,7 @@ pedidoRouter.patch(
       const { clienteId } = req;
 
       const pedidoCriado = await PedidoController.realizaPedido(
-        dbFaturaRepository,
         dbPedidosRepository,
-        dbProdutoRepository,
         {
           pedidoId: params.id,
           metodoDePagamentoId: body.metodoDePagamentoId,
@@ -311,7 +305,6 @@ pedidoRouter.patch(
 
       const pedido = await PedidoController.iniciaPreparo(
         dbPedidosRepository,
-        dbProdutoRepository,
         pedidoId as string
       );
 
@@ -366,7 +359,6 @@ pedidoRouter.patch(
 
       const pedido = await PedidoController.finalizaPreparo(
         dbPedidosRepository,
-        dbProdutoRepository,
         params.id
       );
 
@@ -414,7 +406,6 @@ pedidoRouter.patch(
 
       const pedido = await PedidoController.entregaPedido(
         dbPedidosRepository,
-        dbProdutoRepository,
         params.id
       );
 
@@ -467,18 +458,24 @@ pedidoRouter.get(
     try {
       const { query } = req;
       const { clienteId } = req;
-      const { tipoUsuario } = req
+      // const { tipoUsuario } = req // TODO
 
-      let status: Array<string> = [];
+      let status: Array<StatusDoPedido> | null = null;
 
-      if (query.clienteId && tipoUsuario === TipoUsuario.CLIENT && query.clienteId !== clienteId) {
-        return res.status(401).json({
-          error: "Sem permissao para consultar pedidos de outros usuários",
-        });
-      }
+      // if (query.clienteId && tipoUsuario === TipoUsuario.CLIENT && query.clienteId !== clienteId) {
+      //   return res.status(401).json({
+      //     error: "Sem permissao para consultar pedidos de outros usuários",
+      //   });
+      // }
 
       if (query?.status && typeof query.status === "string") {
-        status = query.status.split(",");
+        status = query.status.split(",").map((value) => {
+          if (Object.values(statusDoPedido).includes(value as StatusDoPedido)) {
+            return value as StatusDoPedido;
+          } else {
+            throwError("BAD_REQUEST", "Invalid status");
+          }
+        });
       }
 
       const queryClienteId = query.clienteId as string ?? clienteId;

@@ -89,18 +89,16 @@ class PedidoDataBaseRepository implements PedidoRepository {
   }
 
   async listaPedidos(
-    status?: Array<string>,
+    status?: StatusDoPedido[],
     clienteId?: string
   ): Promise<Array<PedidoDTO> | null> {
     const filter: {
       status: { $in: any },
       clientId?: string
     } = {
-      status: {
+      status: status ? { $in: status} : {
         $in: [
-          statusDoPedido.PRONTO,
-          statusDoPedido.EM_PREPARO,
-          statusDoPedido.AGUARDANDO_PREPARO
+          statusDoPedido.AGUARDANDO_PREPARO,
         ]
       }
 
@@ -109,8 +107,8 @@ class PedidoDataBaseRepository implements PedidoRepository {
     if (clienteId) {
       filter.clientId = clienteId;
     }
-
-    return await Pedido.find(filter);
+    console.log(filter)
+    return await Pedido.find(filter).sort({ updateAt: 1 });
   }
 }
 

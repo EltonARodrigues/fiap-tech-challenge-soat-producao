@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { number } from "yargs";
 
 import { ItemDoPedidoDTO } from "~domain/entities/types/itensPedidoType";
 import { PedidoDTO, statusDoPedido } from "~domain/entities/types/pedidoType";
@@ -25,10 +24,10 @@ const PedidoSchema = new mongoose.Schema<PedidoDTO>({
     type: String,
     required: true,
   },
-  // faturaId: {
-  //   type: String,
-  //   required: true,
-  // },
+  valor: {
+    type: Number,
+    required: true,
+  },
   status: {
     type: String,
     enum: Object.values(statusDoPedido),

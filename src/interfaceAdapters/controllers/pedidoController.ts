@@ -1,6 +1,5 @@
 import { AdicionaItemInput, RealizaPedidoInput, RemoveItemInput } from "~domain/entities/types/pedidoService.type";
-import { PedidoDTO, PedidoInput } from "~domain/entities/types/pedidoType";
-import FaturaRepository from "~domain/repositories/faturaRepository";
+import { PedidoDTO, PedidoInput, StatusDoPedido } from "~domain/entities/types/pedidoType";
 import PedidoRepository from "~domain/repositories/pedidoRepository";
 import ProdutoRepository from "~domain/repositories/produtoRepository";
 import PedidoUseCase from "~domain/useCases/pedidoUseCase";
@@ -14,7 +13,7 @@ export class PedidoController {
       clienteId,
       // faturaId: null,
       status: "Rascunho",
-      // valor: 0,
+      valor: 0,
       retiradoEm: null,
       createdAt: new Date(),
       updatedAt: null,
@@ -29,46 +28,38 @@ export class PedidoController {
   }
 
   static async realizaPedido(
-    faturaRepository: FaturaRepository,
     pedidoRepository: PedidoRepository,
-    produtoRepository: ProdutoRepository,
     realizaPedidoInput: RealizaPedidoInput
   ): Promise<PedidoDTO | null> {
     return await PedidoUseCase.realizaPedido(
-      faturaRepository,
       pedidoRepository,
-      produtoRepository,
       realizaPedidoInput
     );
   }
 
   static async iniciaPreparo(
     pedidoRepository: PedidoRepository,
-    produtoRepository: ProdutoRepository,
     id: string
   ): Promise<PedidoDTO | null> {
     return await PedidoUseCase.iniciaPreparo(
       pedidoRepository,
-      produtoRepository,
       id
     );
   }
 
   static async finalizaPreparo(
     pedidoRepository: PedidoRepository,
-    produtoRepository: ProdutoRepository,
     id: string
   ): Promise<PedidoDTO> {
     return await PedidoUseCase.finalizaPreparo(
       pedidoRepository,
-      produtoRepository,
       id
     );
   }
 
   static async adicionaItem(
     pedidoRepository: PedidoRepository,
-    produtoRepository: any, //TODO
+    produtoRepository: ProdutoRepository,
     adicionaItemInput: AdicionaItemInput
   ): Promise<PedidoDTO | null> {
     return await PedidoUseCase.adicionaItem(
@@ -80,31 +71,27 @@ export class PedidoController {
 
   static async removeItem(
     pedidoRepository: PedidoRepository,
-    produtoRepository: ProdutoRepository,
     removeItemInput: RemoveItemInput
   ): Promise<PedidoDTO | null> {
     return await PedidoUseCase.removeItem(
       pedidoRepository,
-      produtoRepository,
       removeItemInput
     );
   }
 
   static async entregaPedido(
     pedidoRepository: PedidoRepository,
-    produtoRepository: ProdutoRepository,
     id: string
   ): Promise<PedidoDTO | null> {
     return await PedidoUseCase.entregaPedido(
       pedidoRepository,
-      produtoRepository,
       id
     );
   }
 
   static async listaPedidos(
     pedidoRepository: PedidoRepository,
-    status: Array<string>,
+    status: Array<StatusDoPedido> | null,
     clienteId: string
   ): Promise<PedidoDTO[] | null> {
     return await PedidoUseCase.listaPedidos(

@@ -1,4 +1,3 @@
-import Pedido from "~domain/entities/pedido";
 import { AdicionaItemInput, RemoveItemInput } from "~domain/entities/types/pedidoService.type";
 import { PedidoDTO, StatusDoPedido } from "~domain/entities/types/pedidoType";
 
@@ -31,9 +30,7 @@ export default interface PedidoRepository {
   atualizaStatusDoPedido(id: string, statusDoPedido: StatusDoPedido): Promise<PedidoDTO>;
   adicionaItem(adicionarItemInput: AdicionaItemInput): Promise<PedidoDTO | null>;
   retornaPedido(id: string, clienteId?: string | null): Promise<PedidoDTO | null>;
-  listaPedidos(status?: Array<string>, clienteId?: string): Promise<Array<PedidoDTO> | null>;
+  listaPedidos(status?: Array<StatusDoPedido> | null, clienteId?: string): Promise<Array<PedidoDTO> | null>;
   retornaProximoPedidoFila(): Promise<PedidoDTO | null>;
   removeItem(removeItemInput: RemoveItemInput): Promise<PedidoDTO | null>;
-  // retornaItem(id: string): Promise<ItemDoPedidoDTO | null>;
-  // retornaItensPedido(pedidoId: string): Promise<ItemDoPedidoDTO[] | null>;
 }

@@ -1,7 +1,6 @@
 import { ProdutoDTO } from "~domain/entities/types/produtoType";
-interface ProdutoRepository {
-    retornaProduto(idProduto: string): Promise<ProdutoDTO | null>;
-}
+import ProdutoRepository from "~domain/repositories/produtoRepository";
+
   
 export default class ProdutoContractRepository implements ProdutoRepository{
     async retornaProduto(idProduto: string): Promise<ProdutoDTO | null> {
