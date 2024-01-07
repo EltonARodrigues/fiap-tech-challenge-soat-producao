@@ -1,24 +1,14 @@
+import { FaturaDTO } from "~domain/entities/types/fatura";
+import { PedidoDTO } from "~domain/entities/types/pedidoType";
+import PedidoRepository from "~domain/repositories/pedidoRepository";
+import PagamentoUseCase from "~domain/useCases/pagamentoUseCase";
 
 export class PagamentoController {
-    static async atualizaPagamentoPedido(
-      pedidoRepository: PedidoRepository,
-      clienteId: string
-    ): Promise<PedidoDTO | null> {
-      const pedidoInput: PedidoInput = {
-        clienteId,
-        // faturaId: null,
-        status: "Rascunho",
-        valor: 0,
-        retiradoEm: null,
-        createdAt: new Date(),
-        updatedAt: null,
-        deletedAt: null
-      }
-  
-      const pedidoCriada = await PedidoUseCase.iniciaPedido(
-        pedidoRepository,
-        pedidoInput
-      );
-      return pedidoCriada;
+    static async atualizaPagamentoPedido(pedidoRepository: PedidoRepository,
+        fatura: FaturaDTO): Promise<PedidoDTO> {
+        return await PagamentoUseCase.atualizaPagamentoPedido(
+            pedidoRepository,
+            fatura
+        );
     }
 }

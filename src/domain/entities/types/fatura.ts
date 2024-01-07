@@ -1,4 +1,4 @@
-import MetodoDePagamento from "./metodoDePagamento";
+import MetodoDePagamento from "../metodoDePagamento";
 
 export const statusDePagamento = {
   AGUARDANDO_PAGAMENTO: "Aguardando pagamento",
@@ -10,12 +10,13 @@ export const statusDePagamento = {
 export type StatusDePagamento =
   (typeof statusDePagamento)[keyof typeof statusDePagamento];
 
-export interface Fatura {
+export interface FaturaDTO {
   id: string;
   pedidoId: string;
   metodoDePagamentoId: string;
   metodoDePagamento?: MetodoDePagamento;
   statusDePagamento: StatusDePagamento;
+  isPago: boolean;
   pagoEm: Date | null;
   qrCode: string | null;
   createdAt: Date;

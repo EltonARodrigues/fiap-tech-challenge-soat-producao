@@ -1,15 +1,14 @@
-// import { ItensDoPedido } from "./itemPedido";
 import throwError from "handlerError/handlerError";
 import { v4 as uuidv4 } from "uuid";
 
+import { FaturaDTO, StatusDePagamento, statusDePagamento } from "./types/fatura";
 import { PedidoDTO, PedidoInput, StatusDoPedido, statusDoPedido } from "./types/pedidoType";
-import { StatusDePagamento, statusDePagamento } from "./fatura";
 import ItemPedido from "./itemPedido";
 
 export default class Pedido {
   public id: string;
   public clienteId: string;
-  // public faturaId: string | null;
+  public fatura: FaturaDTO | null;
   public status: StatusDoPedido;
   public valor: number;
   public itens: ItemPedido[];
@@ -21,7 +20,7 @@ export default class Pedido {
   constructor(pedidoInput: PedidoInput, itens: ItemPedido[] | null = []) {
     this.id = pedidoInput.id ?? uuidv4();
     this.clienteId = pedidoInput.clienteId;
-    // this.faturaId = pedidoInput.faturaId ?? null;
+    this.fatura = pedidoInput.fatura ?? null;
     this.status = pedidoInput.status ?? this.criaRascunho();
     this.itens = itens ?? [];
     this.retiradoEm = pedidoInput.retiradoEm ?? null;
@@ -56,6 +55,10 @@ export default class Pedido {
   // }
 
   atualizaPagamento(statusPagamento: StatusDePagamento) {
+
+    if (this.status !== statusDePagamento.AGUARDANDO_PAGAMENTO) {
+      throwError("BAD_REQUEST", `Só é permitido alterar o status do pedido quando o status é ${statusDoPedido.AGUARDANDO_PAGAMENTO}. Status Atual: ${this.status}`);
+    }
 
     if (statusPagamento !== statusDePagamento.AGUARDANDO_PAGAMENTO) {
       this.updatedAt = new Date();
@@ -130,6 +133,10 @@ export default class Pedido {
     this.valor = this.itens?.reduce((total: number, item: ItemPedido,) => total + item.calculaTotal(), 0) ?? 0;
   }
 
+  atualizarFatura(fatura: FaturaDTO) {
+    this.fatura = fatura;
+  }
+
   toObject(): PedidoDTO {
     return {
       id: this.id,
@@ -138,6 +145,7 @@ export default class Pedido {
       valor: this.valor,
       itens: this.itens,
       retiradoEm: this.retiradoEm,
+      fatura: this.fatura,
       createdAt: this.createdAt,
       deletedAt: this.deletedAt,
       updatedAt: this.updatedAt,

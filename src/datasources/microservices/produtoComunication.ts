@@ -1,7 +1,10 @@
+import dotenv from "dotenv";
 import throwError from "handlerError/handlerError";
 
 import { ProdutoDTO } from "~domain/entities/types/produtoType";
 import ProdutoRepository from "~domain/repositories/produtoRepository";
+
+dotenv.config();
 
 const PRODUTO_MS_URL = process.env.PRODUTO_MS_URL as string;
 
