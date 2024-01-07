@@ -3,6 +3,7 @@ import throwError from "handlerError/handlerError";
 
 import PedidoDataBaseRepository from "~datasources/databaseNoSql/repository/pedidoDatabaseRepository";
 import ProdutoMicroserviceComunication from "~datasources/microservices/produtoComunication";
+import FilaService from "~datasources/queues/FilaService";
 import { StatusDoPedido,statusDoPedido } from "~domain/entities/types/pedidoType";
 import { PedidoController } from "~interfaceAdapters/controllers/pedidoController";
 
@@ -30,6 +31,7 @@ import { validaRequisicao } from "./utils";
 
 const pedidoRouter = express.Router({});
 
+const filaService = new FilaService();
 const produtoSourceRepository = new ProdutoMicroserviceComunication();
 const dbPedidosRepository = new PedidoDataBaseRepository();
 
@@ -253,6 +255,7 @@ pedidoRouter.patch(
       const { clienteId } = req;
 
       const pedidoCriado = await PedidoController.realizaPedido(
+        filaService,
         dbPedidosRepository,
         {
           pedidoId: params.id,
