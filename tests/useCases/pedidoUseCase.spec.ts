@@ -1,49 +1,24 @@
-import { statusDePagamento } from "../../src/domain/entities/fatura";
 import { ItemDoPedidoInput } from "../../src/domain/entities/types/itensPedidoType";
 import { RealizaPedidoInput } from "../../src/domain/entities/types/pedidoService.type";
 import { PedidoInput } from "../../src/domain/entities/types/pedidoType";
-import CheckoutRepository from "../../src/domain/repositories/checkoutRepository";
-import FaturaRepository from "../../src/domain/repositories/faturaRepository";
+import FilaRepository from '../../src/domain/repositories/filaRepository';
 import PedidoRepository from "../../src/domain/repositories/pedidoRepository";
 import PedidoUseCase from "../../src/domain/useCases/pedidoUseCase";
+import Pedido from "../../src/domain/entities/pedido";
 import ProdutoRepositoryMock from "../mock/repositories/produtoRepositoryMock";
 
+
 describe('PedidoUseCase', () => {
-  let checkoutRepositoryMock: CheckoutRepository;
-  let faturaRepositoryMock: FaturaRepository;
+  let filaRepository: FilaRepository;
   const createdAt = new Date();
   const produtoRepositoryMock = new ProdutoRepositoryMock(createdAt).repository();
 
   beforeEach(() => {
-    checkoutRepositoryMock = {
-      geraCobranca: jest.fn().mockResolvedValue({
-        id: "1",
-        pedidoId: "1",
-        metodoDePagamentoId: "1",
-        statusDePagamento: statusDePagamento.AGUARDANDO_PAGAMENTO,
-        pagoEm: null,
-        qrCode: null,
-        createdAt: Date,
-        updatedAt: Date,
-        deletedAt: null,
-      }),
-    }
-    faturaRepositoryMock = {
-      atualizaFatura: jest.fn().mockResolvedValue(null),
-      criaFatura: jest.fn().mockResolvedValue(null),
-      retornaFatura: jest.fn().mockResolvedValue(null),
-      atualizaStatusPagamentoFatura: jest.fn().mockResolvedValue(null),
-      pegaFatura: jest.fn().mockResolvedValue({
-        id: "1",
-        pedidoId: "1",
-        metodoDePagamentoId: "1",
-        statusDePagamento: statusDePagamento.AGUARDANDO_PAGAMENTO,
-        pagoEm: null,
-        qrCode: null,
-        createdAt: Date,
-        updatedAt: Date,
-        deletedAt: null,
-      }),
+    filaRepository = {
+      enviaParaFila: jest.fn().mockResolvedValue(null),
+      recebeMensagem: jest.fn().mockResolvedValue(null),
+      deletaMensagemProcessada: jest.fn().mockResolvedValue(null),
+      enviaParaDLQ: jest.fn().mockResolvedValue(null),
     }
   })
 
@@ -53,7 +28,7 @@ describe('PedidoUseCase', () => {
       criaPedido: jest.fn().mockResolvedValue({
         id: "1",
         clienteId: "",
-        faturaId: null,
+        fatura: null,
         status: "Rascunho",
         valor: 0,
         itens: [],
@@ -66,8 +41,6 @@ describe('PedidoUseCase', () => {
       listaPedidos: jest.fn().mockResolvedValue(null),
       retornaProximoPedidoFila: jest.fn().mockResolvedValue(null),
       removeItem: jest.fn().mockResolvedValue(null),
-      retornaItem: jest.fn().mockResolvedValue(null),
-      retornaItensPedido: jest.fn().mockResolvedValue(null),
       atualizaStatusDoPedido: jest.fn().mockResolvedValue(null),
       adicionaItem: jest.fn().mockResolvedValue(null),
       retornaPedido: jest.fn().mockResolvedValue(null),
@@ -75,7 +48,7 @@ describe('PedidoUseCase', () => {
 
     const pedidoInput: PedidoInput = {
       clienteId: "", // OBRIGATORIO, CORRIGIR PROJETO
-      faturaId: null,
+      fatura: null,
       status: "Rascunho",
       valor: 0,
       retiradoEm: null,
@@ -97,14 +70,12 @@ describe('PedidoUseCase', () => {
       listaPedidos: jest.fn().mockResolvedValue(null),
       retornaProximoPedidoFila: jest.fn().mockResolvedValue(null),
       removeItem: jest.fn().mockResolvedValue(null),
-      retornaItem: jest.fn().mockResolvedValue(null),
-      retornaItensPedido: jest.fn().mockResolvedValue(null),
       atualizaStatusDoPedido: jest.fn().mockResolvedValue(null),
       adicionaItem: jest.fn().mockResolvedValue(null),
       retornaPedido: jest.fn().mockResolvedValue({
         id: "1",
         clienteId: "",
-        faturaId: null,
+        fatura: null,
         status: "Rascunho",
         valor: 0,
         itens: [],
@@ -115,53 +86,8 @@ describe('PedidoUseCase', () => {
       }),
     }
 
-    const pedido = await PedidoUseCase.buscaPedido(pedidoRepositoryMock, produtoRepositoryMock, "1")
+    const pedido = await PedidoUseCase.buscaPedido(pedidoRepositoryMock, "1")
     expect(pedido).toBeTruthy();
-  });
-
-  it('Testa retornar itens do Pedido', async () => {
-
-    const pedidoRepositoryMock: PedidoRepository = {
-      criaPedido: jest.fn().mockResolvedValue(null),
-      atualizaPedido: jest.fn().mockResolvedValue(null),
-      listaPedidos: jest.fn().mockResolvedValue(null),
-      retornaProximoPedidoFila: jest.fn().mockResolvedValue(null),
-      removeItem: jest.fn().mockResolvedValue(null),
-      retornaItem: jest.fn().mockResolvedValue(null),
-      retornaItensPedido: jest.fn().mockResolvedValue([
-        {
-          id: "1",
-          produtoId: "1",
-          pedidoId: "1",
-          quantidade: 1,
-          valorUnitario: 1.1,
-          valorTotal: 10,
-          observacao: "test",
-          createdAt,
-          updatedAt: null,
-          deletedAt: null,
-        },
-        {
-          id: "2",
-          produtoId: "2",
-          pedidoId: "1",
-          quantidade: 1,
-          valorUnitario: 2.1,
-          valorTotal: 10,
-          observacao: "test",
-          createdAt,
-          updatedAt: null,
-          deletedAt: null,
-        },
-      ]),
-      atualizaStatusDoPedido: jest.fn().mockResolvedValue(null),
-      adicionaItem: jest.fn().mockResolvedValue(null),
-      retornaPedido: jest.fn().mockResolvedValue(null),
-    }
-
-    const itensPedido = await PedidoUseCase.retornaItensPedido(pedidoRepositoryMock, produtoRepositoryMock, "1")
-
-    expect(itensPedido).toHaveLength(2)
   });
 
   it('Testa adicionar itens ao Pedido', async () => {
@@ -170,7 +96,7 @@ describe('PedidoUseCase', () => {
       atualizaPedido: jest.fn().mockResolvedValue({
         id: "1",
         clienteId: "",
-        faturaId: null,
+        fatura: null,
         status: "Rascunho",
         valor: 3.2,
         itens: [
@@ -207,39 +133,13 @@ describe('PedidoUseCase', () => {
       listaPedidos: jest.fn().mockResolvedValue(null),
       retornaProximoPedidoFila: jest.fn().mockResolvedValue(null),
       removeItem: jest.fn().mockResolvedValue(null),
-      retornaItem: jest.fn().mockResolvedValue(null),
-      retornaItensPedido: jest.fn().mockResolvedValue([
-        {
-          id: "1",
-          produtoId: "1",
-          pedidoId: "1",
-          quantidade: 1,
-          valorUnitario: 1.1,
-          valorTotal: 10,
-          observacao: "test",
-          createdAt,
-          updatedAt: null,
-          deletedAt: null,
-        },
-        {
-          id: "2",
-          produtoId: "2",
-          pedidoId: "1",
-          quantidade: 1,
-          valorUnitario: 2.1,
-          valorTotal: 10,
-          observacao: "test",
-          createdAt,
-          updatedAt: null,
-          deletedAt: null,
-        },
-      ]),
+
       atualizaStatusDoPedido: jest.fn().mockResolvedValue(null),
       adicionaItem: jest.fn().mockResolvedValue(null),
       retornaPedido: jest.fn().mockResolvedValue({
         id: "1",
         clienteId: "",
-        faturaId: null,
+        fatura: null,
         status: "Rascunho",
         valor: 0,
         itens: [],
@@ -274,39 +174,12 @@ describe('PedidoUseCase', () => {
       listaPedidos: jest.fn().mockResolvedValue(null),
       retornaProximoPedidoFila: jest.fn().mockResolvedValue(null),
       removeItem: jest.fn().mockResolvedValue(null),
-      retornaItem: jest.fn().mockResolvedValue(null),
-      retornaItensPedido: jest.fn().mockResolvedValue([
-        {
-          id: "1",
-          produtoId: "1",
-          pedidoId: "1",
-          quantidade: 1,
-          valorUnitario: 1.1,
-          valorTotal: 10,
-          observacao: "test",
-          createdAt,
-          updatedAt: null,
-          deletedAt: null,
-        },
-        {
-          id: "2",
-          produtoId: "2",
-          pedidoId: "1",
-          quantidade: 1,
-          valorUnitario: 2.1,
-          valorTotal: 10,
-          observacao: "test",
-          createdAt,
-          updatedAt: null,
-          deletedAt: null,
-        },
-      ]),
       atualizaStatusDoPedido: jest.fn().mockResolvedValue(null),
       adicionaItem: jest.fn().mockResolvedValue(null),
       retornaPedido: jest.fn().mockResolvedValue({
         id: "1",
         clienteId: "",
-        faturaId: null,
+        fatura: null,
         status: "Rascunho",
         valor: 0,
         itens: [],
@@ -336,14 +209,12 @@ describe('PedidoUseCase', () => {
       listaPedidos: jest.fn().mockResolvedValue(null),
       retornaProximoPedidoFila: jest.fn().mockResolvedValue(null),
       removeItem: jest.fn().mockResolvedValue(null),
-      retornaItem: jest.fn().mockResolvedValue(null),
-      retornaItensPedido: jest.fn().mockResolvedValue(null),
       atualizaStatusDoPedido: jest.fn().mockResolvedValue(null),
       adicionaItem: jest.fn().mockResolvedValue(null),
       retornaPedido: jest.fn().mockResolvedValue({
         id: "1",
         clienteId: "",
-        faturaId: null,
+        fatura: null,
         status: "Rascunho",
         valor: 0,
         itens: [],
@@ -362,10 +233,8 @@ describe('PedidoUseCase', () => {
 
     expect(async () => {
       await PedidoUseCase.realizaPedido(
-        checkoutRepositoryMock,
-        faturaRepositoryMock,
+        filaRepository,
         pedidoRepositoryMock,
-        produtoRepositoryMock,
         prealizaPedidoInput)
     }).rejects.toThrow()
   });
@@ -377,7 +246,7 @@ describe('PedidoUseCase', () => {
       atualizaPedido: jest.fn().mockResolvedValue({
         id: "1",
         clienteId: "",
-        faturaId: "1",
+        fatura: "1",
         status: "Aguardando pagamento",
         valor: 3.2,
         itens: [
@@ -414,42 +283,22 @@ describe('PedidoUseCase', () => {
       listaPedidos: jest.fn().mockResolvedValue(null),
       retornaProximoPedidoFila: jest.fn().mockResolvedValue(null),
       removeItem: jest.fn().mockResolvedValue(null),
-      retornaItem: jest.fn().mockResolvedValue(null),
-      retornaItensPedido: jest.fn().mockResolvedValue([
-        {
-          id: "1",
-          produtoId: "1",
-          pedidoId: "1",
-          quantidade: 1,
-          valorUnitario: 1.1,
-          valorTotal: 10,
-          observacao: "test",
-          createdAt,
-          updatedAt: null,
-          deletedAt: null,
-        },
-        {
-          id: "2",
-          produtoId: "2",
-          pedidoId: "1",
-          quantidade: 1,
-          valorUnitario: 2.1,
-          valorTotal: 10,
-          observacao: "test",
-          createdAt,
-          updatedAt: null,
-          deletedAt: null,
-        },
-      ]),
+
       atualizaStatusDoPedido: jest.fn().mockResolvedValue(null),
       adicionaItem: jest.fn().mockResolvedValue(null),
       retornaPedido: jest.fn().mockResolvedValue({
         id: "1",
         clienteId: "",
-        faturaId: null,
+        fatura: null,
         status: "Rascunho",
-        valor: 0,
-        itens: [],
+        itens: [{
+          id: "4",
+          produtoId: "2",
+          pedidoId: "1",
+          quantidade: 2,
+          valorUnitario: 5,
+          valorTotal: 10,
+        }],
         retiradoEm: null,
         createdAt: Date,
         deletedAt: null,
@@ -457,117 +306,35 @@ describe('PedidoUseCase', () => {
       }),
     }
 
-    const prealizaPedidoInput: RealizaPedidoInput = {
+    const realizaPedidoInput: RealizaPedidoInput = {
       pedidoId: "1",
       clienteId: '1',
       metodoDePagamentoId: ""
     }
 
+    // const mockBuscaPedido = jest.fn().mockReturnValue(new Pedido({
+    //   id: "1",
+    //   clienteId: "",
+    //   fatura: null,
+    //   status: "Rascunho",
+    //   valor: 1,
+    //   retiradoEm: null,
+    //   createdAt: new Date(),
+    //   deletedAt: null,
+    //   updatedAt: null,
+    // }))
+
+    // PedidoUseCase.buscaPedido = mockBuscaPedido;
+
 
     const realizaPedido = await PedidoUseCase.realizaPedido(
-      checkoutRepositoryMock,
-      faturaRepositoryMock,
+      filaRepository,
       pedidoRepositoryMock,
-      produtoRepositoryMock,
-      prealizaPedidoInput)
+      realizaPedidoInput)
     expect(realizaPedido?.status).toBe("Aguardando pagamento")
-    expect(realizaPedido?.faturaId).toBe("1")
+    expect(realizaPedido?.fatura).toBe("1")
 
   });
-
-  // TODO -refazer 
-  // it('Testa mudar staus para -> Aguardando Preparo', async () => {
-
-  //   const pedidoRepositoryMock: PedidoRepository = {
-  //     criaPedido: jest.fn().mockResolvedValue(null),
-  //     atualizaPedido: jest.fn().mockResolvedValue({
-  //       id: "1",
-  //       clienteId: "",
-  //       faturaId: "1",
-  //       status: "Aguardando pagamento",
-  //       valor: 3.2,
-  //       itens: [],
-  //       retiradoEm: null,
-  //       createdAt: Date,
-  //       deletedAt: null,
-  //       updatedAt: null,
-  //     }),
-  //     listaPedidos: jest.fn().mockResolvedValue(null),
-  //     retornaProximoPedidoFila: jest.fn().mockResolvedValue({
-  //       id: "1",
-  //       clienteId: "",
-  //       faturaId: "1",
-  //       status: "Aguardando pagamento",
-  //       valor: 3.2,
-  //       itens: [],
-  //       retiradoEm: null,
-  //       createdAt: Date,
-  //       deletedAt: null,
-  //       updatedAt: null,
-  //     }),
-  //     removeItem: jest.fn().mockResolvedValue(null),
-  //     retornaItem: jest.fn().mockResolvedValue(null),
-  //     retornaItensPedido: jest.fn().mockResolvedValue([
-  //       {
-  //         id: "1",
-  //         produtoId: "1",
-  //         pedidoId: "1",
-  //         quantidade: 1,
-  //         valorUnitario: 1.1,
-  //         valorTotal: 10,
-  //         observacao: "test",
-  //         createdAt,
-  //         updatedAt: null,
-  //         deletedAt: null,
-  //       },
-  //       {
-  //         id: "2",
-  //         produtoId: "2",
-  //         pedidoId: "1",
-  //         quantidade: 1,
-  //         valorUnitario: 2.1,
-  //         valorTotal: 10,
-  //         observacao: "test",
-  //         createdAt,
-  //         updatedAt: null,
-  //         deletedAt: null,
-  //       },
-  //     ]),
-  //     atualizaStatusDoPedido: jest.fn().mockResolvedValue(null),
-  //     adicionaItem: jest.fn().mockResolvedValue(null),
-  //     retornaPedido: jest.fn().mockResolvedValue({
-  //       id: "1",
-  //       clienteId: "",
-  //       faturaId: null,
-  //       status: "Aguardando pagamento",
-  //       valor: 0,
-  //       itens: [],
-  //       retiradoEm: null,
-  //       createdAt: Date,
-  //       deletedAt: null,
-  //       updatedAt: null,
-  //     }),
-  //   }
-
-  //   const pagamentoInput: PagamentoDTO = {
-  //     id: "1",
-  //     isPago: true,
-  //     valorPagamento: 10,
-  //     tipoDePagamento: "",
-  //     faturaId: "",
-  //     createdAt,
-  //     deletedAt: null,
-  //     updatedAt: null
-  //   }
-
-
-  //   await PedidoUseCase.pagamentoAprovado(
-  //     pedidoRepositoryMock,
-  //     faturaRepositoryMock,
-  //     pagamentoInput)
-
-
-  // });
 
   it('Testa mudar status via id para -> Iniciar Preparo', async () => {
 
@@ -576,7 +343,7 @@ describe('PedidoUseCase', () => {
       atualizaPedido: jest.fn().mockResolvedValue({
         id: "1",
         clienteId: "",
-        faturaId: "1",
+        fatura: "1",
         status: "Em Preparo",
         valor: 3.2,
         itens: [],
@@ -588,14 +355,12 @@ describe('PedidoUseCase', () => {
       listaPedidos: jest.fn().mockResolvedValue(null),
       retornaProximoPedidoFila: jest.fn().mockResolvedValue(null),
       removeItem: jest.fn().mockResolvedValue(null),
-      retornaItem: jest.fn().mockResolvedValue(null),
-      retornaItensPedido: jest.fn().mockResolvedValue(null),
       atualizaStatusDoPedido: jest.fn().mockResolvedValue(null),
       adicionaItem: jest.fn().mockResolvedValue(null),
       retornaPedido: jest.fn().mockResolvedValue({
         id: "1",
         clienteId: "",
-        faturaId: null,
+        fatura: null,
         status: "Aguardando preparo",
         valor: 0,
         itens: [],
@@ -609,7 +374,6 @@ describe('PedidoUseCase', () => {
 
     const realizaPedido = await PedidoUseCase.iniciaPreparo(
       pedidoRepositoryMock,
-      produtoRepositoryMock,
       "1")
     expect(realizaPedido?.status).toBe("Em Preparo")
 
@@ -622,7 +386,7 @@ describe('PedidoUseCase', () => {
       atualizaPedido: jest.fn().mockResolvedValue({
         id: "1",
         clienteId: "",
-        faturaId: "1",
+        fatura: "1",
         status: "Em Preparo",
         valor: 3.2,
         itens: [],
@@ -635,7 +399,7 @@ describe('PedidoUseCase', () => {
       retornaProximoPedidoFila: jest.fn().mockResolvedValue({
         id: "1",
         clienteId: "",
-        faturaId: null,
+        fatura: null,
         status: "Aguardando preparo",
         valor: 0,
         itens: [],
@@ -645,8 +409,6 @@ describe('PedidoUseCase', () => {
         updatedAt: null,
       }),
       removeItem: jest.fn().mockResolvedValue(null),
-      retornaItem: jest.fn().mockResolvedValue(null),
-      retornaItensPedido: jest.fn().mockResolvedValue(null),
       atualizaStatusDoPedido: jest.fn().mockResolvedValue(null),
       adicionaItem: jest.fn().mockResolvedValue(null),
       retornaPedido: jest.fn().mockResolvedValue(null),
@@ -655,7 +417,7 @@ describe('PedidoUseCase', () => {
 
     const realizaPedido = await PedidoUseCase.iniciaPreparo(
       pedidoRepositoryMock,
-      produtoRepositoryMock)
+    )
     expect(realizaPedido?.status).toBe("Em Preparo")
 
   });
@@ -666,7 +428,7 @@ describe('PedidoUseCase', () => {
       atualizaPedido: jest.fn().mockResolvedValue({
         id: "1",
         clienteId: "",
-        faturaId: "1",
+        fatura: "1",
         status: "Em Preparo",
         valor: 3.2,
         itens: [],
@@ -679,7 +441,7 @@ describe('PedidoUseCase', () => {
       retornaProximoPedidoFila: jest.fn().mockResolvedValue({
         id: "1",
         clienteId: "",
-        faturaId: null,
+        fatura: null,
         status: "Aguardando preparo",
         valor: 0,
         itens: [],
@@ -689,8 +451,6 @@ describe('PedidoUseCase', () => {
         updatedAt: null,
       }),
       removeItem: jest.fn().mockResolvedValue(null),
-      retornaItem: jest.fn().mockResolvedValue(null),
-      retornaItensPedido: jest.fn().mockResolvedValue(null),
       atualizaStatusDoPedido: jest.fn().mockResolvedValue(null),
       adicionaItem: jest.fn().mockResolvedValue(null),
       retornaPedido: jest.fn().mockResolvedValue(null),
@@ -699,7 +459,7 @@ describe('PedidoUseCase', () => {
 
     const realizaPedido = await PedidoUseCase.iniciaPreparo(
       pedidoRepositoryMock,
-      produtoRepositoryMock)
+    )
     expect(realizaPedido?.status).toBe("Em Preparo")
 
   });
@@ -711,7 +471,7 @@ describe('PedidoUseCase', () => {
       atualizaPedido: jest.fn().mockResolvedValue({
         id: "1",
         clienteId: "",
-        faturaId: "1",
+        fatura: "1",
         status: "Pronto",
         valor: 3.2,
         itens: [],
@@ -723,14 +483,12 @@ describe('PedidoUseCase', () => {
       listaPedidos: jest.fn().mockResolvedValue(null),
       retornaProximoPedidoFila: jest.fn().mockResolvedValue(null),
       removeItem: jest.fn().mockResolvedValue(null),
-      retornaItem: jest.fn().mockResolvedValue(null),
-      retornaItensPedido: jest.fn().mockResolvedValue(null),
       atualizaStatusDoPedido: jest.fn().mockResolvedValue(null),
       adicionaItem: jest.fn().mockResolvedValue(null),
       retornaPedido: jest.fn().mockResolvedValue({
         id: "1",
         clienteId: "",
-        faturaId: null,
+        fatura: null,
         status: "Em preparo",
         valor: 0,
         itens: [],
@@ -744,7 +502,6 @@ describe('PedidoUseCase', () => {
 
     const realizaPedido = await PedidoUseCase.finalizaPreparo(
       pedidoRepositoryMock,
-      produtoRepositoryMock,
       "1")
     expect(realizaPedido?.status).toBe("Pronto")
 

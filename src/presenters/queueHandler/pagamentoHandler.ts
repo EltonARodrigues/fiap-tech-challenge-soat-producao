@@ -1,4 +1,4 @@
-import { JSON } from "sequelize";
+
 import PedidoDataBaseRepository from "~datasources/databaseNoSql/repository/pedidoDatabaseRepository";
 import FilaService from "~datasources/queues/FilaService";
 import { FaturaDTO } from "~domain/entities/types/fatura";
@@ -23,7 +23,7 @@ async function queueCheck() {
         Body: JSON.stringify(pagamento.body), 
         ReceiptHandle: pagamento.receiptHandle as string}
       )
-
+        JSON
     }
     return null;
   });

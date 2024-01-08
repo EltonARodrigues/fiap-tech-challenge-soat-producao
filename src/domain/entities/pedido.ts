@@ -93,10 +93,6 @@ export default class Pedido {
     this.status = statusDoPedido.ENTREGUE;
   }
 
-  registrarFatura(faturaId: string) {
-    // this.faturaId = faturaId;
-  }
-
   validaValor() {
     if (this.valor <= 0) {
       throwError("BAD_REQUEST", `Não é possível realizar um pedido sem nenhum valor`);
