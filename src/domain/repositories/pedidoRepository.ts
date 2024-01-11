@@ -24,6 +24,12 @@ export type RetornaItemInput = {
   id: string;
 };
 
+export interface SendPaymentQueueBody {
+  pedidoId: string;
+  metodoDePagamento: string;
+  valor: number;
+} 
+
 export default interface PedidoRepository {
   criaPedido(pedido: PedidoDTO): Promise<PedidoDTO>;
   atualizaPedido(pedido: PedidoDTO): Promise<PedidoDTO>;

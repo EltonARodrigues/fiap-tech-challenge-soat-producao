@@ -10,7 +10,7 @@ import {
   StatusDoPedido,
 } from "~domain/entities/types/pedidoType";
 import FilaRepository from "~domain/repositories/filaRepository";
-import PedidoRepository from "~domain/repositories/pedidoRepository";
+import PedidoRepository, { SendPaymentQueueBody } from "~domain/repositories/pedidoRepository";
 import ProdutoRepository from "~domain/repositories/produtoRepository";
 
 import {
@@ -64,7 +64,13 @@ export default class PedidoUseCase {
     const pedidoEntregue = await pedidoRepository.atualizaPedido(pedido.toObject())
     const itensAtuais = pedido?.itens?.map((item) => new ItemPedido(item));
 
-    filaRepository.enviaParaFila<PedidoDTO>(pedidoEntregue, process.env.FILA_ENVIO_PAGAMENTO as string)
+    const pagamentoBody: SendPaymentQueueBody = {
+      pedidoId: pedidoEntregue.id,
+      metodoDePagamento: realizaPedidoInput.metodoDePagamentoId,
+      valor: pedidoEntregue.valor,
+    }
+
+    filaRepository.enviaParaFila<SendPaymentQueueBody>(pagamentoBody, process.env.FILA_ENVIO_PAGAMENTO as string)
 
     return new Pedido(pedidoEntregue, itensAtuais);
   }
