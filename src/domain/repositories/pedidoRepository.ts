@@ -7,13 +7,6 @@ export type CriaPedidoInput = {
   status: StatusDoPedido;
 };
 
-export type AtualizaPedidoInput = {
-  id: string;
-  status?: StatusDoPedido;
-  retiradoEm?: Date;
-  faturaId?: string;
-};
-
 export type queryStatusPagamentoInput = {
   pedidoId: string;
   clienteId?: string;

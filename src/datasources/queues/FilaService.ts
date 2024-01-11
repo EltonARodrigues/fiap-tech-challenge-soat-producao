@@ -105,7 +105,7 @@ export default class FilaService implements FilaRepository {
       console.log('Nenhuma mensagem na fila.');
 
     } catch (error) {
-      console.error('Erro ao receber mensagens:', error);
+      console.error(`Erro ao receber mensagens da fila ${fila}:`, error);
     }
 
     return null;

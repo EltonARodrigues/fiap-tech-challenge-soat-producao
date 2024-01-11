@@ -12,7 +12,6 @@ export class PedidoController {
   ): Promise<PedidoDTO | null> {
     const pedidoInput: PedidoInput = {
       clienteId,
-      fatura: null,
       status: "Rascunho",
       valor: 0,
       retiradoEm: null,

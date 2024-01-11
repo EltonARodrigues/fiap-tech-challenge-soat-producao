@@ -1,14 +1,13 @@
 import throwError from "handlerError/handlerError";
 import { v4 as uuidv4 } from "uuid";
 
-import { FaturaDTO, StatusDePagamento, statusDePagamento } from "./types/fatura";
+import { StatusDePagamento, statusDePagamento } from "./types/PagamentoType";
 import { PedidoDTO, PedidoInput, StatusDoPedido, statusDoPedido } from "./types/pedidoType";
 import ItemPedido from "./itemPedido";
 
 export default class Pedido {
   public id: string;
   public clienteId: string;
-  public fatura: FaturaDTO | null;
   public status: StatusDoPedido;
   public valor: number;
   public itens: ItemPedido[];
@@ -20,7 +19,6 @@ export default class Pedido {
   constructor(pedidoInput: PedidoInput, itens: ItemPedido[] | null = []) {
     this.id = pedidoInput.id ?? uuidv4();
     this.clienteId = pedidoInput.clienteId;
-    this.fatura = pedidoInput.fatura ?? null;
     this.status = pedidoInput.status ?? this.criaRascunho();
     this.itens = itens ?? [];
     this.retiradoEm = pedidoInput.retiradoEm ?? null;
@@ -129,10 +127,6 @@ export default class Pedido {
     this.valor = this.itens?.reduce((total: number, item: ItemPedido,) => total + item.calculaTotal(), 0) ?? 0;
   }
 
-  atualizarFatura(fatura: FaturaDTO) {
-    this.fatura = fatura;
-  }
-
   toObject(): PedidoDTO {
     return {
       id: this.id,
@@ -141,7 +135,6 @@ export default class Pedido {
       valor: this.valor,
       itens: this.itens,
       retiradoEm: this.retiradoEm,
-      fatura: this.fatura,
       createdAt: this.createdAt,
       deletedAt: this.deletedAt,
       updatedAt: this.updatedAt,

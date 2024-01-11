@@ -1,14 +1,14 @@
-import { FaturaDTO } from "~domain/entities/types/fatura";
+import { PagamentoStatusUpdateBody } from "~domain/entities/types/PagamentoType";
 import { PedidoDTO } from "~domain/entities/types/pedidoType";
 import PedidoRepository from "~domain/repositories/pedidoRepository";
 import PagamentoUseCase from "~domain/useCases/pagamentoUseCase";
 
 export class PagamentoController {
     static async atualizaPagamentoPedido(pedidoRepository: PedidoRepository,
-        fatura: FaturaDTO): Promise<PedidoDTO> {
+        pagamentoUpdate: PagamentoStatusUpdateBody): Promise<PedidoDTO> {
         return await PagamentoUseCase.atualizaPagamentoPedido(
             pedidoRepository,
-            fatura
+            pagamentoUpdate
         );
     }
 }

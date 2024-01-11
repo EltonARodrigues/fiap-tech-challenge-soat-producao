@@ -1,7 +1,7 @@
 
 import PedidoDataBaseRepository from "~datasources/databaseNoSql/repository/pedidoDatabaseRepository";
 import FilaService from "~datasources/queues/FilaService";
-import { FaturaDTO } from "~domain/entities/types/fatura";
+import { PagamentoStatusUpdateBody } from "~domain/entities/types/PagamentoType";
 import { PagamentoController } from "~interfaceAdapters/controllers/pagamentoController";
 
 const FILA_PAGAMENTO_URL = process.env.FILA_PAGAMENTO_URL as string;
@@ -12,7 +12,7 @@ const pedidoRepository = new PedidoDataBaseRepository();
 
 
 async function queueCheck() {
-  const pagamentos = await filaService.recebeMensagem<FaturaDTO>(FILA_PAGAMENTO_URL);
+  const pagamentos = await filaService.recebeMensagem<PagamentoStatusUpdateBody>(FILA_PAGAMENTO_URL);
   return pagamentos?.map(async pagamento => {
     try {
       await PagamentoController.atualizaPagamentoPedido(pedidoRepository, pagamento.body);
@@ -23,7 +23,6 @@ async function queueCheck() {
         Body: JSON.stringify(pagamento.body), 
         ReceiptHandle: pagamento.receiptHandle as string}
       )
-        JSON
     }
     return null;
   });

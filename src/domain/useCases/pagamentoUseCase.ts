@@ -2,7 +2,7 @@ import throwError from "handlerError/handlerError";
 
 import ItemPedido from "~domain/entities/itemPedido";
 import Pedido from "~domain/entities/pedido";
-import { FaturaDTO, statusDePagamento } from "~domain/entities/types/fatura";
+import { PagamentoStatusUpdateBody } from "~domain/entities/types/PagamentoType";
 import { PedidoDTO } from "~domain/entities/types/pedidoType";
 import PedidoRepository from "~domain/repositories/pedidoRepository";
 
@@ -10,21 +10,20 @@ export default class PagamentoUseCase {
 
     static async atualizaPagamentoPedido(
         pedidoRepository: PedidoRepository,
-        fatura: FaturaDTO,
+        pagamentoUpdate: PagamentoStatusUpdateBody,
     ): Promise<PedidoDTO> {
 
-        const pedidoRetornado = await pedidoRepository.retornaPedido(fatura.pedidoId);
+        const pedidoRetornado = await pedidoRepository.retornaPedido(pagamentoUpdate.pedidoId);
 
         if (!pedidoRetornado) {
-            throwError("NOT_FOUND", `Pedido ${fatura.pedidoId} nao encontrado`);
+            throwError("NOT_FOUND", `Pedido ${pagamentoUpdate.pedidoId} nao encontrado`);
         }
 
         const itensAtuais = pedidoRetornado?.itens?.map((item) => new ItemPedido(item));
         const pedido = new Pedido(pedidoRetornado, itensAtuais);
 
-        pedido.atualizaPagamento(fatura.isPago ? statusDePagamento.PAGAMENTO_APROVADO : statusDePagamento.PAGAMENTO_NEGADO);
+        pedido.atualizaPagamento(pagamentoUpdate.statusPagamento);
 
-        pedido.atualizarFatura(fatura)
         await pedidoRepository.atualizaPedido(pedido);
 
         return pedido.toObject();
