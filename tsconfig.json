@@ -5,6 +5,7 @@
     "target": "es2016",
     "module": "commonjs",
     "esModuleInterop": true,
+    "types": ["node", "jest"],
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "resolveJsonModule": true,

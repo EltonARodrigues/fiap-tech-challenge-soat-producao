@@ -15,11 +15,11 @@ export interface ItemDoPedidoInput {
 export type ItensDoPedido = Array<ItemDoPedidoInput>;
 
 export interface ItemDoPedidoDTO {
-  id: string;
+  id?: string;
   produtoId: string;
   pedidoId?: string;
   quantidade: number;
   valorUnitario: number;
-  valorTotal: number;
+  valorTotal?: number;
   observacao?: string | null | undefined;
 } 

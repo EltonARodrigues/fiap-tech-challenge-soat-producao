@@ -17,7 +17,7 @@ import Pedido from "../models/pedidoModel";
 class PedidoDataBaseRepository implements PedidoRepository {
   async criaPedido(pedido: PedidoDTO): Promise<PedidoDTO> {
     const pedidoCriado = await Pedido.create(pedido);
-    return await Pedido.findById(pedidoCriado._id).select('-_id -__v').lean() as PedidoDTO;
+    return pedidoCriado as PedidoDTO;
   }
 
   async atualizaStatusDoPedido(
@@ -32,7 +32,6 @@ class PedidoDataBaseRepository implements PedidoRepository {
 
   async atualizaPedido(pedido: PedidoDTO): Promise<PedidoDTO> {
     const pedidoAtualizado = await Pedido.findOneAndUpdate({ id: pedido.id },  pedido, { upsert: true, setDefaultsOnInsert: true, new: true }).select('-_id -__v');
-    console.log(pedidoAtualizado)
     return pedidoAtualizado as PedidoDTO;
 
   }
@@ -52,7 +51,7 @@ class PedidoDataBaseRepository implements PedidoRepository {
   }
 
   async retornaProximoPedidoFila(): Promise<PedidoDTO | null> {
-    const proximoPedido = Pedido.findOne({}, {}, { sort: { 'createdAt': 1 } }).select('-_id -__v') as unknown as PedidoDTO;
+    const proximoPedido = Pedido.findOne({status: statusDoPedido.AGUARDANDO_PREPARO}, {}, { sort: { 'createdAt': 1 } }).select('-_id -__v') as unknown as PedidoDTO;
 
     return proximoPedido;
 

@@ -1,3 +1,4 @@
+import throwError from "handlerError/handlerError";
 import { v4 as uuidv4 } from "uuid";
 
 import { ItemDoPedidoDTO } from "./types/itensPedidoType";
@@ -17,7 +18,7 @@ export default class ItemPedido {
     this.id = itemPedido.id ?? uuidv4();
     this.produtoId = itemPedido.produtoId;
     this.quantidade = itemPedido.quantidade;
-    this.valorUnitario = itemPedido.valorUnitario ?? 0; // TODO validar 
+    this.valorUnitario = this.validarValor(itemPedido.valorUnitario); 
     this.valorTotal = this.calculaTotal();
     this.observacao = itemPedido.observacao ?? null;
     this.createdAt = new Date();
@@ -25,6 +26,14 @@ export default class ItemPedido {
     if (this.quantidade <= 0){
       throw new Error('Quantidade do item selecionado nao pode ser menor que 0')
     }
+  }
+
+  validarValor(valorUnitario: number) {
+    if (valorUnitario <= 0) {
+      throwError("BAD_REQUEST", 'Não é criar um item de valor unitario menor igual a 0');
+    }
+
+    return valorUnitario;
   }
 
   calculaTotal(){

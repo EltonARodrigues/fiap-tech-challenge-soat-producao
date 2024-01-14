@@ -25,31 +25,34 @@ export default class FilaService implements FilaRepository {
     this.sqsClient = new SQSClient(configuration);
   }
 
-  async enviaParaDLQ(fila: string, filaDLQ: string, response: SQSResonse): Promise<void> {
-      const parametrosDelete = {
-        QueueUrl: fila,
-        ReceiptHandle: response.ReceiptHandle,
+  async enviaParaDLQ(fila: string, filaDLQ: string, response: SQSResonse): Promise<boolean> {
+    const parametrosDelete = {
+      QueueUrl: fila,
+      ReceiptHandle: response.ReceiptHandle,
+    };
+
+    try {
+      const deleteCommand = new DeleteMessageCommand(parametrosDelete);
+      await this.sqsClient.send(deleteCommand);
+
+      const sendMessageParams = {
+        QueueUrl: filaDLQ,
+        MessageBody: response.Body,
       };
-    
-      try {
-        const deleteCommand = new DeleteMessageCommand(parametrosDelete);
-        await this.sqsClient.send(deleteCommand);
-    
-        const sendMessageParams = {
-          QueueUrl: filaDLQ,
-          MessageBody: response.Body,
-        };
-    
-        const sendToDLQCommand = new SendMessageCommand(sendMessageParams);
-        await this.sqsClient.send(sendToDLQCommand);
-    
-        console.log('Mensagem movida para DLQ.');
-      } catch (error) {
-        console.error('Error em mover para DLQ:', error);
-      }
+
+      const sendToDLQCommand = new SendMessageCommand(sendMessageParams);
+      await this.sqsClient.send(sendToDLQCommand);
+
+      console.log('Mensagem movida para DLQ.');
+      return true;
+    } catch (error) {
+      console.error('Error em mover para DLQ:', error);
+    }
+
+    return false
   }
 
-  async deletaMensagemProcessada(fila: string, receiptHandle: string): Promise<void> {
+  async deletaMensagemProcessada(fila: string, receiptHandle: string): Promise<boolean> {
     try {
       const command = new DeleteMessageCommand({
         QueueUrl: fila,
@@ -58,23 +61,32 @@ export default class FilaService implements FilaRepository {
 
       await this.sqsClient.send(command);
       console.log('Message removida da fila');
+      return true;
     } catch (error) {
       console.error('Error deleting message:', error);
     }
+    return false;
   }
 
 
-  async enviaParaFila<T>(mensagem: T, fila: string): Promise<void> {
-    const params = {
-      QueueUrl: fila,
-      MessageBody: JSON.stringify(mensagem)
-    };
+  async enviaParaFila<T>(mensagem: T, fila: string): Promise<boolean> {
+    try {
+      const params = {
+        QueueUrl: fila,
+        MessageBody: JSON.stringify(mensagem)
+      };
 
-    const command = new SendMessageCommand(params);
+      const command = new SendMessageCommand(params);
 
-    const data = await this.sqsClient.send(command);
-    console.log('Mensagem enviada com sucesso:', data.MessageId);
+      const data = await this.sqsClient.send(command);
+      console.log('Mensagem enviada com sucesso:', data.MessageId);
 
+      return true;
+    } catch (err) {
+      console.log(err);
+    }
+
+    return false;
   }
 
   async recebeMensagem<T>(fila: string): Promise<MensagemResponse<T>[] | null> {
@@ -88,11 +100,12 @@ export default class FilaService implements FilaRepository {
 
     try {
       const data = await this.sqsClient.send(command);
-
       if (data.Messages && data.Messages.length > 0) {
         console.log(`Mensagens recebidas: ${data.Messages.length}`);
         return data?.Messages?.reduce((mensagens: MensagemResponse<T>[], mensagemReceived) => {
           try {
+            console.log('data')
+            console.log(mensagemReceived?.Body)
             const body = JSON.parse(mensagemReceived?.Body as string);
             mensagens.push({ receiptHandle: mensagemReceived.ReceiptHandle, body });
           } catch (error) {

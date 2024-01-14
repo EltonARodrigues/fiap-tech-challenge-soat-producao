@@ -68,7 +68,7 @@ export default class Pedido {
 
   emPreparo() {
     if (this.status !== statusDoPedido.AGUARDANDO_PREPARO) {
-      throwError("BAD_REQUEST", `Não é possível alterar o status para ${statusDoPedido.AGUARDANDO_PREPARO}. Status atual do pedido é ${this.status}`);
+      throwError("BAD_REQUEST", `Não é possível alterar o status para ${statusDoPedido.EM_PREPARO}. Status atual do pedido é ${this.status}`);
     }
     this.updatedAt = new Date();
     this.status = statusDoPedido.EM_PREPARO;
@@ -76,7 +76,7 @@ export default class Pedido {
 
   pronto() {
     if (this.status !== statusDoPedido.EM_PREPARO) {
-      throwError("BAD_REQUEST", `Não é possível alterar o status para ${statusDoPedido.EM_PREPARO}. Status atual do pedido é ${this.status}`);
+      throwError("BAD_REQUEST", `Não é possível alterar o status para ${statusDoPedido.PRONTO}. Status atual do pedido é ${this.status}`);
     }
     this.updatedAt = new Date();
     this.status = statusDoPedido.PRONTO;
@@ -84,7 +84,7 @@ export default class Pedido {
 
   entregue() {
     if (this.status !== statusDoPedido.PRONTO) {
-      throwError("BAD_REQUEST", `Não é possível alterar o status para ${statusDoPedido.PRONTO}. Status atual do pedido é ${this.status}`);
+      throwError("BAD_REQUEST", `Não é possível alterar o status para ${statusDoPedido.ENTREGUE}. Status atual do pedido é ${this.status}`);
     }
     this.updatedAt = new Date();
     this.retiradoEm = new Date();
@@ -93,13 +93,13 @@ export default class Pedido {
 
   validaValor() {
     if (this.valor <= 0) {
-      throwError("BAD_REQUEST", `Não é possível realizar um pedido sem nenhum valor`);
+      throwError("BAD_REQUEST", 'Não é possível realizar um pedido sem nenhum valor');
     }
   }
 
   adicionarItem(item: ItemPedido) {
     if (this.status !== statusDoPedido.RASCUNHO) {
-      throwError("BAD_REQUEST", `Não é possível adicionar itens a um pedido que não está em rascunho`);
+      throwError("BAD_REQUEST", "Não é possível adicionar itens a um pedido que não está em rascunho");
     }
 
     this.itens.push(item);
@@ -109,7 +109,7 @@ export default class Pedido {
 
   removeItem(itemId: string) {
     if (this.status !== statusDoPedido.RASCUNHO) {
-      throwError("BAD_REQUEST", `Não é possível remover itens a um pedido que não está em rascunho`);
+      throwError("BAD_REQUEST", "Não é possível remover itens a um pedido que não está em rascunho");
     }
 
     const findItem = this.itens?.find(item => item.id === itemId);
