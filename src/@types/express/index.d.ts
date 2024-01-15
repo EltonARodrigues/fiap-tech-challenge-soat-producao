@@ -1,4 +1,4 @@
-import { TipoUsuario } from "~domain/repositories/authenticationRepository";
+import { TipoUsuario } from "~domain/entities/types/authType";
 
 export {}
 

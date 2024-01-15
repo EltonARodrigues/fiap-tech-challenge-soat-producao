@@ -1,9 +1,6 @@
-import { DeleteMessageCommand, ReceiveMessageCommand, SendMessageCommand, SQSClient, SQSClientConfig } from '@aws-sdk/client-sqs';
-import { mock } from 'aws-sdk-mock';
+import {  SQSClient } from '@aws-sdk/client-sqs';
 
-// import AWSMock from 'aws-sdk-mock'
 import FilaService from '../../../src/datasources/queues/FilaService';
-import { ProdutoDTO } from '../../../src/domain/entities/types/produtoType';
 import { SQSResonse } from '../../../src/domain/repositories/filaRepository';
 
 jest.mock("aws-sdk");
@@ -25,18 +22,6 @@ describe('FilaService', () => {
     DeleteMessageCommand: jest.fn(),
     ReceiveMessageCommand: jest.fn(),
   }));
-
-  beforeAll(() => {
-    // AWSMock.mock('SQS', 'sendMessage', (params: any, callback: any) => {
-    //   // Mocked implementation for sendMessage
-    //   callback(null, { MessageId: 'mocked-message-id' });
-    // });
-    // filaService = new FilaService();
-  });
-
-  afterAll(() => {
-    // AWSMock.restore('SQS');
-  });
 
   it('Teste enviar para fila', async () => {
     const mockTest: MockType = {

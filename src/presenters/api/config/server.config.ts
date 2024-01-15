@@ -30,7 +30,7 @@ export class Server implements ServerInterface {
 
   async init(): Promise<void> {
     try {
-      if (process.env.NODE_ENV === "development")
+      if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test")
         this.appConfig.use(morgan("dev"));
 
       this.appConfig.use(json());

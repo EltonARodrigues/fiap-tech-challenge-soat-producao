@@ -18,7 +18,7 @@ export default class FilaService implements FilaRepository {
       }
     }
 
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test") {
       configuration.endpoint = 'http://localhost:4566'
     }
     console.log(configuration)
