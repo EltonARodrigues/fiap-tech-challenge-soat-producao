@@ -45,7 +45,7 @@ describe('ProdutoMicroserviceComunication', () => {
 
     global.fetch = jest.fn().mockImplementationOnce(async () => {
       return {
-        ok: true,
+        ok: false,
         status: 404,
         json: () => null,
       }

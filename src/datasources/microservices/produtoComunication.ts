@@ -23,28 +23,28 @@ export default class ProdutoMicroserviceComunication implements ProdutoRepositor
       if (response.status === 404) {
         console.log("Pedido nao encontrado!");
 
-        if (NODE_ENV === 'test') { // TODO - Reavaliar
-          return {
-            "id": "3117a0bd-e0c4-421d-a035-67f9b95cc407",
-            "nome": "test",
-            "categoriaId": "3117a0bd-e0c4-421d-a035-67f9b95cc407",
-            "preco": 1,
-            "imagens": [
-              {
-                "id": "2883ada3-a1cc-4481-964e-503df981676a",
-                "produtoId": "1",
-                "url": "string",
-                "createdAt": new Date(),
-                "deletedAt": null,
-                "updatedAt": null
-              }
-            ],
-            "descricao": "terwtet",
-            "createdAt": new Date(),
-            "deletedAt": null,
-            "updatedAt": null
-          }
-        }
+        // if (NODE_ENV === 'test') { // TODO - Reavaliar
+        //   return {
+        //     "id": "3117a0bd-e0c4-421d-a035-67f9b95cc407",
+        //     "nome": "test",
+        //     "categoriaId": "3117a0bd-e0c4-421d-a035-67f9b95cc407",
+        //     "preco": 1,
+        //     "imagens": [
+        //       {
+        //         "id": "2883ada3-a1cc-4481-964e-503df981676a",
+        //         "produtoId": "1",
+        //         "url": "string",
+        //         "createdAt": new Date(),
+        //         "deletedAt": null,
+        //         "updatedAt": null
+        //       }
+        //     ],
+        //     "descricao": "terwtet",
+        //     "createdAt": new Date(),
+        //     "deletedAt": null,
+        //     "updatedAt": null
+        //   }
+        // }
 
         return null;
       }

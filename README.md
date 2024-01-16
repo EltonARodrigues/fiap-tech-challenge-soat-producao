@@ -1,6 +1,6 @@
-# Tech Challenge - Pós-Tech SOAT - FIAP
+# Tech Challenge - Pós-Tech SOAT - FIAP - Microservico Produto
 
-Este é o projeto desenvolvido durante a fase I e atualizado durante a fase III do curso de pós-graduação em arquitetura de software da FIAP - turma II/2023.
+Este é o projeto desenvolvido durante a fase 4 do curso de pós-graduação em arquitetura de software da FIAP - turma II/2023.
 
 Membros do grupo 30:
 Diórgenes Eugênio da Silveira - RM 349116
@@ -10,22 +10,14 @@ Juliana Amoasei dos Reis - RM 348666
 
 ## Repositórios
 
-Infraestrutura da API principal e do banco de dados com Terraform e Kubernetes:
-https://github.com/diorgeneseugenio/fiap-tech-challenge-soat-terraform
+# TODO
 
-API principal:
-https://github.com/diorgeneseugenio/fiap-tech-challenge-soat
-
-Serviço de autenticação via funções Lambda:
-https://github.com/JulianaAmoasei/fiap-auth-service-cognito
-
-### Changelog Fase III:
-- **[Estrutura do Projeto](#estrutura-do-projeto)**: Refatoração do projeto para exigir autenticação de usuários via JWT para acesso aos endpoints;
-- **Implementação de serviço Lambda** para gerenciamento de usuários utilizando AWS Cognito e autenticação via token JWT:
-  - **clientes do restaurante** via CPF válido para iniciar o fluxo de pedido;
-  - **usuários admin** para acesso a endpoints de inclusão, alteração e exclusão de produtos e categorias;
-- **Refatoração do sistema de infraestrutura** com provisionamento de recursos e implantação automatizados via Kubernetes e Terraform;
-- **Migração do banco de dados da API principal** para o AWS RDS;
+### Changelog Fase IV:
+- **Microservico Pedido**: Separacao da funcionalidade de pedido em um microservico isolado;
+- **NoSQS** Utilizando bando de dados apartado para o microservico e migrado para banco NoSQS(Mongodb/DocumentDB)
+- **Unit Test** adicionado e refatorado os testes;
+- **BDD** Utilizando CUCUMBER para criar testes de BDD;
+- **Refatoração do sistema de infraestrutura** com provisionamento de recursos e implantação automatizados via ECS e Terraform;
 - **Gerenciamento de deploy** automatizado via GitHub Actions.
 
 ## Propósito do projeto
@@ -34,18 +26,15 @@ Fornecer um sistema para gerenciamento de pedidos para uma empresa do ramo de se
 
 ## Stack utilizada
 
-* Node.js v18
+* Node.js v20
 * TypeScript 
-* MySQL
+* DynamoDB
 * Express
-* Sequelize
+* Mongoose
 * Docker
-* Kubernetes
 * AWS
-  * RDS
-  * Lambda
-  * Cognito
-  * API Gateway
+  * DocumentDB
+  * ECS
 
 
 ## Instalação do projeto
@@ -121,40 +110,22 @@ Os projeto cria o metodo de pagamento no banco(QR Code) e as categorias padrão 
 Esta API fornece documentação no padrão OpenAPI.
 Os endpoints disponíveis, suas descrições e dados necessários para requisição podem ser consultados e testados em ```/api-docs```.
 
-### 1. Cadastrar Produtos
-
-1.1 O projeto já cria as principais categorias(Lanche, Acompanhamento, Bebida, Sobremesa);
-1.2 - Cadastro do produto:
-```json
-{
-  "nome": "produto 1",
-  "preco": 0.1,
-  "descricao": "demo 1",
-  "categoriaId": "1c941831-c8cb-43a3-8d3f-2959a6fb7241",
-  "imagens": [
-    {
-      "url": "demo.png"
-    }
-  ]
-}
-```
-
 ### 2. Pedido
 
-3.1 Crie um pedido vazio usando o ```/pedido/iniciar-pedido``` passando o id do usuário;
-3.2 Adicione um produto ao pedido usando o ```/pedido/{id}/adicionar-item```;
+2.1 Crie um pedido vazio usando o ```/pedido/iniciar-pedido``` passando o id do usuário;
+2.2 Adicione um produto ao pedido usando o ```/pedido/{id}/adicionar-item```;
   A lista de produtos pode ser consultada via GET ```/produto```
-3.3 Finalize o pedido em ```/pedido/realizar-pedido/{id-pedido}``` passando o método de pagamento escolhido via body;
+2.3 Finalize o pedido em ```/pedido/realizar-pedido/{id-pedido}``` passando o método de pagamento escolhido via body;
   No momento existe somente um método disponível, que pode ser consultado via GET ```/metodo-pagamento```
   Deve ser gerado um id de fatura para ser utilizado no pagamento
-3.4 Use POST ```/pagamento``` para simular o funcionamento do webhook mudando o status de pagamento do pedido para aprovado ou reprovado
+2.4 Use POST ```/pagamento``` para simular o funcionamento do webhook mudando o status de pagamento do pedido para aprovado ou reprovado
 
 **OBS**: Todos os dados necessários para envio das requisições, via parâmetros ou body, estão disponíveis em ```/api-docs```.
 
 ### 3. Preparo
-4.1 Utilize o ```/pedido/iniciar-preparo/``` para pegar o próximo pedido da fila ou passar o id para furar a fila;
-4.2 Utilize o ```/pedido/finalizar-preparo/{id}``` para marcar como pronto;
-4.3 Utilize o ```/pedido/entregar-pedido/{id}``` para marcar como finalizado;
+3.1 Utilize o ```/pedido/iniciar-preparo/``` para pegar o próximo pedido da fila ou passar o id para furar a fila;
+3.2 Utilize o ```/pedido/finalizar-preparo/{id}``` para marcar como pronto;
+3.3 Utilize o ```/pedido/entregar-pedido/{id}``` para marcar como finalizado;
 
 ## Desenvolvimento do projeto
 

@@ -3,7 +3,7 @@ import {  SQSClient } from '@aws-sdk/client-sqs';
 import FilaService from '../../../src/datasources/queues/FilaService';
 import { SQSResonse } from '../../../src/domain/repositories/filaRepository';
 
-jest.mock("aws-sdk");
+// jest.mock("aws-sdk");
 
 
 interface MockType {
