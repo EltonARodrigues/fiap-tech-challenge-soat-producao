@@ -4,15 +4,6 @@ import ItemPedido from "../../../src/domain/entities/itemPedido";
 
 
 describe('itemPedido', () => {
-  const item = new ItemPedido({
-    id: uuidv4(),
-    produtoId: uuidv4(),
-    quantidade: 2,
-    valorUnitario: 1.1,
-    observacao: "",
-  });
-
-
   it('Teste adicionar item', async () => {
     const item = new ItemPedido({
       produtoId: uuidv4(),
