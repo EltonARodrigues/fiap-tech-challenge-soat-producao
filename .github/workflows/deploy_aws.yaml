@@ -56,28 +56,28 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v2
 
-    - name: Configure AWS CLI
+    - name: Deploy AWS ECS
       run: |
         aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws eks --region ${{ secrets.AWS_REGION }} update-kubeconfig --name ${{ secrets.AWS_CLUSTER_NAME }}
+        aws ecs update-service --cluster my-ecs-cluster --service my-ecs-service --force-new-deployment
 
-    - name: Deploy Secrets
-      run: echo "${{ secrets.K8S_SECRETS }}" > k8s/secrets.yaml
-    - name: Deploy no Kubernetes
-      # run: |
-      #   kubectl apply -f k8s/secrets.yaml
-      #   kubectl apply -f k8s/db/db.svc.yaml
-      #   kubectl apply -f k8s/db/db.pv.yaml
-      #   kubectl apply -f k8s/db/db.pvc.yaml
-      #   kubectl apply -f k8s/db/db.deployment.yaml
-      #   kubectl apply -f k8s/api/api.deployment.yaml
-      #   kubectl apply -f k8s/api/api.svc.yaml
-      run: |
-        kubectl apply -f k8s/secrets.yaml
-        kubectl apply -f k8s/api/api.deployment.yaml
-        kubectl apply -f k8s/api/api.svc.yaml
+    # - name: Deploy Secrets
+    #   run: echo "${{ secrets.K8S_SECRETS }}" > k8s/secrets.yaml
+    # - name: Deploy no Kubernetes
+    #   # run: |
+    #   #   kubectl apply -f k8s/secrets.yaml
+    #   #   kubectl apply -f k8s/db/db.svc.yaml
+    #   #   kubectl apply -f k8s/db/db.pv.yaml
+    #   #   kubectl apply -f k8s/db/db.pvc.yaml
+    #   #   kubectl apply -f k8s/db/db.deployment.yaml
+    #   #   kubectl apply -f k8s/api/api.deployment.yaml
+    #   #   kubectl apply -f k8s/api/api.svc.yaml
+    #   run: |
+    #     kubectl apply -f k8s/secrets.yaml
+    #     kubectl apply -f k8s/api/api.deployment.yaml
+    #     kubectl apply -f k8s/api/api.svc.yaml
 
-    - name: Verificar Status do Deploy
-      run: |
-        kubectl get pods
+    # - name: Verificar Status do Deploy
+    #   run: |
+    #     kubectl get pods
