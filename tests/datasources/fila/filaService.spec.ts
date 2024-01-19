@@ -1,7 +1,7 @@
 import {  SQSClient } from '@aws-sdk/client-sqs';
 
 import FilaService from '../../../src/datasources/queues/FilaService';
-import { SQSResonse } from '../../../src/domain/repositories/filaRepository';
+import { SQSResponse } from '../../../src/domain/repositories/filaRepository';
 
 // jest.mock("aws-sdk");
 
@@ -50,12 +50,12 @@ describe('FilaService', () => {
     });
     SQSClient.prototype.send = mockSend;
 
-    const mockSQSResonse: SQSResonse = {
+    const mockSQSResponse: SQSResponse = {
       ReceiptHandle: 'test',
       Body: 'mock'
     }
 
-    const result = await filaService.enviaParaDLQ(sendQueue, `${sendQueue}_dlq`, mockSQSResonse);
+    const result = await filaService.enviaParaDLQ(sendQueue, `${sendQueue}_dlq`, mockSQSResponse);
 
     expect(result).toBeTruthy();
   });

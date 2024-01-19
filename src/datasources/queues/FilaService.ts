@@ -1,7 +1,7 @@
 import { DeleteMessageCommand, ReceiveMessageCommand, SendMessageCommand, SQSClient, SQSClientConfig } from '@aws-sdk/client-sqs';
 import dotenv from 'dotenv';
 
-import FilaRepository, { MensagemResponse, SQSResonse } from '~domain/repositories/filaRepository';
+import FilaRepository, { MensagemResponse, SQSResponse } from '~domain/repositories/filaRepository';
 
 dotenv.config();
 
@@ -25,7 +25,7 @@ export default class FilaService implements FilaRepository {
     this.sqsClient = new SQSClient(configuration);
   }
 
-  async enviaParaDLQ(fila: string, filaDLQ: string, response: SQSResonse): Promise<boolean> {
+  async enviaParaDLQ(fila: string, filaDLQ: string, response: SQSResponse): Promise<boolean> {
     const parametrosDelete = {
       QueueUrl: fila,
       ReceiptHandle: response.ReceiptHandle,

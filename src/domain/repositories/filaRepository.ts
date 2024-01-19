@@ -3,7 +3,7 @@ export interface MensagemResponse<T> {
   body: T
 }
 
-export interface SQSResonse { 
+export interface SQSResponse { 
   ReceiptHandle: string; 
   Body: string 
 }
@@ -12,5 +12,5 @@ export default interface FilaRepository {
   enviaParaFila<T>(mensagem: T, fila: string): Promise<boolean>;
   recebeMensagem<T>(fila: string): Promise<MensagemResponse<T>[] | null>;
   deletaMensagemProcessada(fila: string, receiptHandle: string): Promise<boolean>;
-  enviaParaDLQ(fila: string, filaDLQ: string, response: SQSResonse): Promise<boolean>;
+  enviaParaDLQ(fila: string, filaDLQ: string, response: SQSResponse): Promise<boolean>;
 }
