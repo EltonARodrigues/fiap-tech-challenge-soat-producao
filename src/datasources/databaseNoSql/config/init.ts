@@ -13,6 +13,6 @@ export default async function connectDB(dbHost:string, dbPort:string, dbName: st
 
     } catch(err) {
         console.error(`cMongoDB connection error: ${err}`)
-        await connectDB(dbHost, dbPort, dbName); // TODO
+        await connectDB(dbHost, dbPort, dbName);
     }
 }
