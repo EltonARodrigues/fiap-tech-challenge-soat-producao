@@ -8,7 +8,7 @@ export default async function connectDB(dbHost:string, dbPort:string, dbName: st
         console.log(`mongodb://${dbHost}:${dbPort}/${dbName}`)
         await connect(`mongodb://${dbHost}:${dbPort}/${dbName}`,{
             retryWrites: false
-        }); // TODO
+        });
         console.log('Connected to MongoDB');
 
     } catch(err) {
