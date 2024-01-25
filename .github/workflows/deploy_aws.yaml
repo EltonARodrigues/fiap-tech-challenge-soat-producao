@@ -58,7 +58,7 @@ jobs:
           push: true
           tags: |
             ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:latest
-          # TODO - nao usar apenas o latest
+
   deploy-eks:
     needs: [ build_and_publish_image ]
     runs-on: ubuntu-latest
