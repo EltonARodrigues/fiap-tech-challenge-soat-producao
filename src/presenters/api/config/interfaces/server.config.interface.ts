@@ -7,6 +7,7 @@ export interface ServerInterface {
   // dataBaseConfig: DataBaseConfigInterface;
   port?: number;
   init: () => Promise<void>;
+  config: () => Promise<Express>;
   addRouter: (routeBase: string, router: Router) => void;
 }
 
