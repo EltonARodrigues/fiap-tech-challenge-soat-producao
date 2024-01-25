@@ -24,6 +24,10 @@ export class Server implements ServerInterface {
     this.routers = [];
   }
 
+  getApp() {
+    return this.appConfig;
+  }
+
   addRouter(routeBase: string, router: Router): void {
     this.routers.push({ [routeBase]: router });
   }
