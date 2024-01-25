@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from "express";
 import throwError from "handlerError/handlerError";
 
 import PedidoDataBaseRepository from "~datasources/databaseNoSql/repository/pedidoDatabaseRepository";
+import MetodoPagamentoMicroserviceComunication from "~datasources/microservices/pagamentoComunication";
 import ProdutoMicroserviceComunication from "~datasources/microservices/produtoComunication";
 import FilaService from "~datasources/queues/FilaService";
 import { StatusDoPedido,statusDoPedido } from "~domain/entities/types/pedidoType";
@@ -33,6 +34,7 @@ const pedidoRouter = express.Router({});
 
 const filaService = new FilaService();
 const produtoSourceRepository = new ProdutoMicroserviceComunication();
+const metodoPagamentoMicroserviceComunication = new MetodoPagamentoMicroserviceComunication();
 const dbPedidosRepository = new PedidoDataBaseRepository();
 
 
@@ -255,6 +257,7 @@ pedidoRouter.patch(
       const { clienteId } = req;
 
       const pedidoCriado = await PedidoController.realizaPedido(
+        metodoPagamentoMicroserviceComunication,
         filaService,
         dbPedidosRepository,
         {

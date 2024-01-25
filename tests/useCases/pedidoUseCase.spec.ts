@@ -2,6 +2,7 @@ import { ItemDoPedidoInput } from "../../src/domain/entities/types/itensPedidoTy
 import { RealizaPedidoInput, RemoveItemInput } from "../../src/domain/entities/types/pedidoService.type";
 import { PedidoInput } from "../../src/domain/entities/types/pedidoType";
 import FilaRepository from '../../src/domain/repositories/filaRepository';
+import MetodoPagamentoRepository from '../../src/domain/repositories/MetodoPagamentoRepository';
 import PedidoRepository from "../../src/domain/repositories/pedidoRepository";
 import ProdutoRepository from "../../src/domain/repositories/produtoRepository";
 import PedidoUseCase from "../../src/domain/useCases/pedidoUseCase";
@@ -10,11 +11,15 @@ import PedidoUseCase from "../../src/domain/useCases/pedidoUseCase";
 describe('PedidoUseCase', () => {
   let filaRepository: FilaRepository;
   const createdAt = new Date();
+  let metodoPagamentoRepositoryMock: MetodoPagamentoRepository;
   const produtoRepositoryMock: ProdutoRepository = {
     retornaProduto: jest.fn().mockResolvedValue(null),
   };
-
+  
   beforeEach(() => {
+    metodoPagamentoRepositoryMock = {
+      retornaMetodoPagamentoValido: jest.fn().mockResolvedValue(true),
+    };
     produtoRepositoryMock.retornaProduto = jest.fn().mockResolvedValue({
       id: "1",
       nome: "mock_1",
@@ -246,7 +251,7 @@ describe('PedidoUseCase', () => {
       await PedidoUseCase.adicionaItem(pedidoRepositoryMock, produtoRepositoryMock, itemPedido1)
     } catch (e: any) {
       expect(e.message).toBe("Pedido nao encontrado");
-    }    
+    }
   });
 
   it('Testa adicionar item a um pedido com produto inexistente', async () => {
@@ -431,7 +436,7 @@ describe('PedidoUseCase', () => {
       await PedidoUseCase.removeItem(pedidoRepositoryMock, itemPedido1);
     } catch (e: any) {
       expect(e.message).toBe("Pedido nao encontrado");
-    } 
+    }
 
   });
 
@@ -464,10 +469,11 @@ describe('PedidoUseCase', () => {
       metodoDePagamentoId: ""
     }
 
-    
+
 
     try {
       await PedidoUseCase.realizaPedido(
+        metodoPagamentoRepositoryMock,
         filaRepository,
         pedidoRepositoryMock,
         realizaPedidoInput)
@@ -476,7 +482,8 @@ describe('PedidoUseCase', () => {
     }
   });
 
-  it('Testa realizar pedido que nao existe', async () => {
+  it('Testa realizar pedido que nao tem um metodo de pagamento valido', async () => {
+    metodoPagamentoRepositoryMock.retornaMetodoPagamentoValido = jest.fn().mockResolvedValue(false);
 
     const pedidoRepositoryMock: PedidoRepository = {
       criaPedido: jest.fn().mockResolvedValue(null),
@@ -497,6 +504,38 @@ describe('PedidoUseCase', () => {
 
     try {
       await PedidoUseCase.realizaPedido(
+        metodoPagamentoRepositoryMock,
+        filaRepository,
+        pedidoRepositoryMock,
+        prealizaPedidoInput)
+    } catch (e: any) {
+      expect(e.message).toBe("Metodo de pagamento nao encontrado!");
+    }
+  });
+
+  it('Testa realizar pedido que nao existe', async () => {
+    // metodoPagamentoRepositoryMock.retornaMetodoPagamentoValido = jest.fn().mockResolvedValue(true)
+
+    const pedidoRepositoryMock: PedidoRepository = {
+      criaPedido: jest.fn().mockResolvedValue(null),
+      atualizaPedido: jest.fn().mockResolvedValue(null),
+      listaPedidos: jest.fn().mockResolvedValue(null),
+      retornaProximoPedidoFila: jest.fn().mockResolvedValue(null),
+      removeItem: jest.fn().mockResolvedValue(null),
+      atualizaStatusDoPedido: jest.fn().mockResolvedValue(null),
+      adicionaItem: jest.fn().mockResolvedValue(null),
+      retornaPedido: jest.fn().mockResolvedValue(null),
+    }
+
+    const prealizaPedidoInput: RealizaPedidoInput = {
+      pedidoId: "1",
+      clienteId: '1',
+      metodoDePagamentoId: ""
+    }
+
+    try {
+      await PedidoUseCase.realizaPedido(
+        metodoPagamentoRepositoryMock,
         filaRepository,
         pedidoRepositoryMock,
         prealizaPedidoInput)
@@ -578,6 +617,7 @@ describe('PedidoUseCase', () => {
 
 
     const realizaPedido = await PedidoUseCase.realizaPedido(
+      metodoPagamentoRepositoryMock,
       filaRepository,
       pedidoRepositoryMock,
       realizaPedidoInput)

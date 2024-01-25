@@ -7,7 +7,7 @@ import ProdutoRepository from "~domain/repositories/produtoRepository";
 dotenv.config();
 
 const PRODUTO_MS_URL = process.env.PRODUTO_MS_URL as string;
-const NODE_ENV = process.env.NODE_ENV as string;
+// const NODE_ENV = process.env.NODE_ENV as string;
 
 export default class ProdutoMicroserviceComunication implements ProdutoRepository {
   async retornaProduto(idProduto: string): Promise<ProdutoDTO | null> {
