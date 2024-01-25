@@ -89,16 +89,6 @@ export class Server implements ServerInterface {
 
       this.appConfig.listen(this.port, async () => {
         console.log(`🚀: Server is running at http://localhost:${this.port}`);
-        // await this.dataBaseConfig.authenticate();
-        // this.dataBaseConfig
-        //   .getInstance()
-        //   .sync({ force: false })
-        //   .then(() => {
-        //     console.log("✅: Synced database successfully.");
-        //   })
-        //   .catch((err: any) => {
-        //     console.error("❌: Error on sync database.", err);
-        //   });
       });
     } catch (err: any) {
       console.error("🚨: Unable to init the server:", err);
