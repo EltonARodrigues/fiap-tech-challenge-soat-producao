@@ -9,19 +9,23 @@ import specs from "./swaggerConfig";
 
 export default class API {
   private app: Express;
+  private server: Server;
 
   constructor() {
     this.app = express();
+    this.app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
+  
+    this.server = new Server({ appConfig: this.app });
+  
+    this.server.addRouter("/api/pedido", pedidoRouter);
+  }
+
+  appServer() {
+    return this.server.getApp();
   }
 
   start() {
-    this.app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
-
-    const server = new Server({ appConfig: this.app });
-
-    server.addRouter("/api/pedido", pedidoRouter);
-
-    server.init();
+    this.server.init();
   }
 }
 
