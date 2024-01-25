@@ -6,6 +6,7 @@ import { statusDePagamento } from "../../../src/domain/entities/types/PagamentoT
 import { statusDoPedido } from "../../../src/domain/entities/types/pedidoType";
 
 describe('Pedido', () => {
+  const createdAt = new Date();
   const item = new ItemPedido({
     id: uuidv4(),
     produtoId: uuidv4(),
@@ -20,7 +21,7 @@ describe('Pedido', () => {
       status: statusDoPedido.RASCUNHO,
       valor: 0,
       retiradoEm: null,
-      createdAt: new Date(),
+      createdAt,
       updatedAt: null,
       deletedAt: null
     });
@@ -36,7 +37,7 @@ describe('Pedido', () => {
       status: statusDoPedido.RASCUNHO,
       valor: 0,
       retiradoEm: null,
-      createdAt: new Date(),
+      createdAt,
       updatedAt: null,
       deletedAt: null
     });
@@ -56,7 +57,7 @@ describe('Pedido', () => {
       status: statusDoPedido.RASCUNHO,
       valor: 0,
       retiradoEm: null,
-      createdAt: new Date(),
+      createdAt,
       updatedAt: null,
       deletedAt: null
     });
@@ -74,7 +75,7 @@ describe('Pedido', () => {
       status: statusDoPedido.RASCUNHO,
       valor: 0,
       retiradoEm: null,
-      createdAt: new Date(),
+      createdAt,
       updatedAt: null,
       deletedAt: null
     });
@@ -96,7 +97,7 @@ describe('Pedido', () => {
       status: statusDoPedido.RASCUNHO,
       valor: 0,
       retiradoEm: null,
-      createdAt: new Date(),
+      createdAt,
       updatedAt: null,
       deletedAt: null
     });
@@ -116,7 +117,7 @@ describe('Pedido', () => {
       status: statusDoPedido.RASCUNHO,
       valor: 0,
       retiradoEm: null,
-      createdAt: new Date(),
+      createdAt,
       updatedAt: null,
       deletedAt: null
     });
@@ -130,7 +131,7 @@ describe('Pedido', () => {
       status: statusDoPedido.RASCUNHO,
       valor: 0,
       retiradoEm: null,
-      createdAt: new Date(),
+      createdAt,
       updatedAt: null,
       deletedAt: null
     });
@@ -147,7 +148,7 @@ describe('Pedido', () => {
       status: statusDoPedido.RASCUNHO,
       valor: 0,
       retiradoEm: null,
-      createdAt: new Date(),
+      createdAt,
       updatedAt: null,
       deletedAt: null
     });
@@ -168,7 +169,7 @@ describe('Pedido', () => {
       status: statusDoPedido.RASCUNHO,
       valor: 0,
       retiradoEm: null,
-      createdAt: new Date(),
+      createdAt,
       updatedAt: null,
       deletedAt: null
     });
@@ -187,7 +188,7 @@ describe('Pedido', () => {
       status: statusDoPedido.RASCUNHO,
       valor: 0,
       retiradoEm: null,
-      createdAt: new Date(),
+      createdAt,
       updatedAt: null,
       deletedAt: null
     });
@@ -206,7 +207,7 @@ describe('Pedido', () => {
       status: statusDoPedido.RASCUNHO,
       valor: 0,
       retiradoEm: null,
-      createdAt: new Date(),
+      createdAt,
       updatedAt: null,
       deletedAt: null
     });
@@ -228,7 +229,7 @@ describe('Pedido', () => {
       status: statusDoPedido.RASCUNHO,
       valor: 0,
       retiradoEm: null,
-      createdAt: new Date(),
+      createdAt,
       updatedAt: null,
       deletedAt: null
     });
@@ -247,7 +248,7 @@ describe('Pedido', () => {
       status: statusDoPedido.RASCUNHO,
       valor: 0,
       retiradoEm: null,
-      createdAt: new Date(),
+      createdAt,
       updatedAt: null,
       deletedAt: null
     });
@@ -270,7 +271,7 @@ describe('Pedido', () => {
       status: statusDoPedido.RASCUNHO,
       valor: 0,
       retiradoEm: null,
-      createdAt: new Date(),
+      createdAt,
       updatedAt: null,
       deletedAt: null
     });
@@ -289,7 +290,7 @@ describe('Pedido', () => {
       status: statusDoPedido.RASCUNHO,
       valor: 0,
       retiradoEm: null,
-      createdAt: new Date(),
+      createdAt,
       updatedAt: null,
       deletedAt: null
     });
@@ -311,7 +312,7 @@ describe('Pedido', () => {
       status: statusDoPedido.RASCUNHO,
       valor: 0,
       retiradoEm: null,
-      createdAt: new Date(),
+      createdAt,
       updatedAt: null,
       deletedAt: null
     });
@@ -330,7 +331,7 @@ describe('Pedido', () => {
       status: statusDoPedido.RASCUNHO,
       valor: 0,
       retiradoEm: null,
-      createdAt: new Date(),
+      createdAt,
       updatedAt: null,
       deletedAt: null
     });
@@ -352,7 +353,7 @@ describe('Pedido', () => {
       status: statusDoPedido.RASCUNHO,
       valor: 0,
       retiradoEm: null,
-      createdAt: new Date(),
+      createdAt,
       updatedAt: null,
       deletedAt: null
     });
@@ -371,7 +372,7 @@ describe('Pedido', () => {
       status: statusDoPedido.RASCUNHO,
       valor: 0,
       retiradoEm: null,
-      createdAt: new Date(),
+      createdAt,
       updatedAt: null,
       deletedAt: null
     });
@@ -386,7 +387,7 @@ describe('Pedido', () => {
       itens: [],
       valor: 0,
       retiradoEm: null,
-      createdAt: new Date(),
+      createdAt,
       updatedAt: null,
       deletedAt: null
     });
