@@ -109,7 +109,7 @@ export default class FilaService implements FilaRepository {
             const body = JSON.parse(mensagemReceived?.Body as string);
             mensagens.push({ receiptHandle: mensagemReceived.ReceiptHandle, body });
           } catch (error) {
-            console.error(`Invalid JSON: ${mensagemReceived?.Body}`); // TODO - tratar mensagem invalida
+            console.error(`Invalid JSON: ${mensagemReceived?.Body}`);
           }
           return mensagens;
         }, []);

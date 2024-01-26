@@ -21,5 +21,5 @@ export interface ItemDoPedidoDTO {
   quantidade: number;
   valorUnitario: number;
   valorTotal?: number;
-  observacao?: string | null | undefined;
+  observacao?: string | null;
 } 
