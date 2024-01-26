@@ -121,7 +121,7 @@ When('passar o id do pedido que esta em Rascunho', async function () {
   response = await fetch(`${url_endpoint}/pedido/realizar-pedido/${pedidoId}`, {
     method: "PATCH",
     body: JSON.stringify({
-      metodoDePagamentoId: uuidv4()
+      metodoDePagamentoId: 'ea3d6981-099d-49a5-9f45-9ed88affc9b5'
     }),
     headers: { "Content-type": "application/json; charset=UTF-8" }
   });
