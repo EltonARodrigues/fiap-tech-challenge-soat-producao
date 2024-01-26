@@ -10,8 +10,6 @@ Juliana Amoasei dos Reis - RM 348666
 
 ## Repositórios
 
-# TODO
-
 ### Changelog Fase IV:
 - **Microservico Pedido**: Separacao da funcionalidade de pedido em um microservico isolado;
 - **NoSQS** Utilizando bando de dados apartado para o microservico e migrado para banco NoSQS(Mongodb/DocumentDB)
@@ -19,10 +17,6 @@ Juliana Amoasei dos Reis - RM 348666
 - **BDD** Utilizando CUCUMBER para criar testes de BDD;
 - **Refatoração do sistema de infraestrutura** com provisionamento de recursos e implantação automatizados via ECS e Terraform;
 - **Gerenciamento de deploy** automatizado via GitHub Actions.
-
-## Propósito do projeto
-
-Fornecer um sistema para gerenciamento de pedidos para uma empresa do ramo de serviços de alimentação.
 
 ## Stack utilizada
 
@@ -36,6 +30,19 @@ Fornecer um sistema para gerenciamento de pedidos para uma empresa do ramo de se
   * DocumentDB
   * ECS
 
+### Teste Unitario
+Teste unitario com JEST:
+
+Comando: `npm run test`
+
+![exemplo de unitario](docs/testunit.png)
+
+#### Teste BDD
+Para os testes de BDD o projeto está utilizando o cucumber presente no diretorio `features`
+
+Comando: `npm run test:bdd`
+
+![exemplo de bdd](docs/bdd.png)
 
 ## Instalação do projeto
 
@@ -47,51 +54,6 @@ Para executar em ambiente de desenvolvimento:
 
 * Faça o `fork` e `clone` este repositório em seu computador;
 * Entre no diretório local onde o repositório foi clonado;
-
-### Executar em ambiente Kubernetes
-
-Os arquivos para o Kubernetes se encontram no diretório ```k8s/```:
-
-1. Crie o secrets como o exemplo abaixo ou use um de terceiros com as envs listadas:
-
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: fiap-tech-secrets
-type: Opaque
-data: # value = Base64
-  db_username: dXNlcl90ZWNo
-  db_password: dGVzdHRlc3Q=
-  db_root_password: YWRtaW4xMjM=
-  db_name: ZmlhcC1zb2F0LXByb2plY3RfZGI=
-  jwt_secret: dTZCWTh3NHMzYXlHNjJvRzA1TVYxSE96eTllYm9UYVdoUWpIQ0ZpWmhjMjBFYlIwOGdzWlZPdUdQUGVVVUVJMg==
-  user_pool_id: dXMtZWFzdC0xX1FtWkNMUElnWg==
-  admin_pool_id: dXMtZWFzdC0xX252bnk0V1llRQ==
-  pool_client_client_id: MTkydjlnZmVvYmxqM3NpczNmajA0a2o0ZDE=
-  pool_admin_client_id: cHRmOHEwYW9qaDFkNnBicG1vOXJhaGc1dg==
-```
-
-2. Execute o comando `kubectl apply -f <./caminho/do/arquivo/secret.yaml>` no diretório raiz do projeto para gerar os secrets;
-
-3. Execute os comandos abaixo para subir as ferramentas do ambiente Kubernetes:
-
-Banco de dados:
-```
-kubectl apply -f k8s/db/db.pvc.yaml
-kubectl apply -f k8s/db/db.deployment.yaml
-kubectl apply -f k8s/db/db.svc.yaml
-```
-
-API:
-```
-kubectl apply -f k8s/api/api.deployment.yaml
-kubectl apply -f k8s/api/api.svc.yaml
-```
-
-A API estará pronta para receber requisições a partir da URL base http://localhost:30080/.
-**OBS**: Caso a URL base não esteja disponível em `localhost`, execute o comando `minikube ip` no terminal e utilize o IP disponibilizado no lugar de `localhost`. Exemplo: `192.168.49.2:30080/api/produto`.
-
 
 ### Docker Compose
 

@@ -15,7 +15,6 @@ const ItemDoPedidoSchema = new mongoose.Schema<ItemDoPedidoDTO>({
 
 });
 
-// Define the food schema
 const PedidoSchema = new mongoose.Schema<PedidoDTO>({
   id: {
     type: String,
@@ -61,8 +60,6 @@ const PedidoSchema = new mongoose.Schema<PedidoDTO>({
   },
 });
 
-// Create the Food model
 const Pedido = mongoose.model('Pedido', PedidoSchema);
 
-// Export the model
 export default Pedido;

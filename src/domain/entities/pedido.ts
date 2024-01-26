@@ -45,13 +45,6 @@ export default class Pedido {
     this.status = statusDoPedido.AGUARDANDO_PAGAMENTO;
   }
 
-  // aguardaPagamento() {
-  //   if (this.status !== statusDoPedido.AGUARDANDO_PAGAMENTO) {
-  //     throwError("BAD_REQUEST", `Não é possível alterar o status para ${statusDoPedido.AGUARDANDO_PAGAMENTO}. Status atual do pedido é ${this.status}`);
-  //   }
-  //   this.status = statusDoPedido.AGUARDANDO_PREPARO;
-  // }
-
   atualizaPagamento(statusPagamento: StatusDePagamento) {
 
     if (this.status !== statusDePagamento.AGUARDANDO_PAGAMENTO) {

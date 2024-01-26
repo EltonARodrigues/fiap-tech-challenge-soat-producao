@@ -3,7 +3,6 @@ import { Express, NextFunction, Request, Response, Router } from "express";
 import { CustomError } from "handlerError/handlerError";
 import morgan from "morgan";
 
-// import { DataBaseConfigInterface } from "adapter/driven/infra/config/interfaces/db.config.interface";
 import {
   ServerConstructorInterface,
   ServerInterface,
@@ -11,16 +10,13 @@ import {
 
 export class Server implements ServerInterface {
   appConfig: Express;
-  // dataBaseConfig: DataBaseConfigInterface;
 
   routers: Array<{ [routeBase: string]: Router }>;
 
   port = Number(process.env.PORT) || 3000;
 
-  // constructor({ dataBaseConfig, appConfig }: ServerConstructorInterface) {
   constructor({ appConfig }: ServerConstructorInterface) {
     this.appConfig = appConfig;
-    // this.dataBaseConfig = dataBaseConfig;
     this.routers = [];
   }
 
@@ -92,7 +88,7 @@ export class Server implements ServerInterface {
 
     return this.appConfig;
   }
-  async init(): Promise<void> {
+  async init() {
     try {
       this.config();
       this.appConfig.listen(this.port, async () => {

@@ -8,20 +8,13 @@ export type RealizaPedidoInput = {
   metodoDePagamentoId: string;
 };
 
-// export type AdicionaItemInput = {
-//   pedidoId: string;
-//   produtoId: string;
-//   quantidade: number;
-//   observacao?: string | null;
-// };
-
 export type AdicionaItemInput = {
   pedidoId: string;
   produtoId: string;
   quantidade: number;
   valorUnitario: number;
   valorTotal: number;
-  observacao?: string | null | undefined;
+  observacao?: string | null;
 };
 
 export type RemoveItemInput = {
