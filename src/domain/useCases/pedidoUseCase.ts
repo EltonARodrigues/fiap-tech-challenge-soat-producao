@@ -10,6 +10,7 @@ import {
   StatusDoPedido,
 } from "~domain/entities/types/pedidoType";
 import FilaRepository from "~domain/repositories/filaRepository";
+import MetodoPagamentoRepository from "~domain/repositories/MetodoPagamentoRepository";
 import PedidoRepository, { SendPaymentQueueBody } from "~domain/repositories/pedidoRepository";
 import ProdutoRepository from "~domain/repositories/produtoRepository";
 
@@ -45,10 +46,15 @@ export default class PedidoUseCase {
   }
 
   static async realizaPedido(
+    metodoPagamentoRepository: MetodoPagamentoRepository,
     filaRepository: FilaRepository,
     pedidoRepository: PedidoRepository,
     realizaPedidoInput: RealizaPedidoInput
   ): Promise<PedidoDTO | null> {
+    const metodoEncontrado = await metodoPagamentoRepository.retornaMetodoPagamentoValido(realizaPedidoInput.metodoDePagamentoId)
+    if (!metodoEncontrado) {
+      throwError("BAD_REQUEST", "Metodo de pagamento nao encontrado!");
+    }
     const pedido = await PedidoUseCase.buscaPedido(
       pedidoRepository,
       realizaPedidoInput.pedidoId,
@@ -104,7 +110,7 @@ export default class PedidoUseCase {
       pedido.emPreparo();
       const pedidoAtualizado = await pedidoRepository.atualizaPedido(pedido.toObject())
       const itensAtuais = pedidoAtualizado?.itens?.map((item) => new ItemPedido(item));
-    
+
       return new Pedido(pedidoAtualizado, itensAtuais);
     }
 
@@ -128,7 +134,7 @@ export default class PedidoUseCase {
 
     const pedidoAtualizado = await pedidoRepository.atualizaPedido(pedido.toObject())
     const itensAtuais = pedidoAtualizado?.itens?.map((item) => new ItemPedido(item));
-  
+
     return new Pedido(pedidoAtualizado, itensAtuais);
   }
 
@@ -149,7 +155,7 @@ export default class PedidoUseCase {
 
     const pedidoAtualizado = await pedidoRepository.atualizaPedido(pedido.toObject())
     const itensAtuais = pedidoAtualizado?.itens?.map((item) => new ItemPedido(item));
-  
+
     return new Pedido(pedidoAtualizado, itensAtuais);
   }
 
@@ -185,7 +191,7 @@ export default class PedidoUseCase {
 
     const pedidoAtualizado = await pedidoRepository.atualizaPedido(pedido.toObject())
     const itensAtuais = pedidoAtualizado?.itens?.map((item) => new ItemPedido(item));
-  
+
     return new Pedido(pedidoAtualizado, itensAtuais);
   }
 
@@ -207,7 +213,7 @@ export default class PedidoUseCase {
 
     const pedidoAtualizado = await pedidoRepository.atualizaPedido(pedido.toObject())
     const itensAtuais = pedidoAtualizado?.itens?.map((item) => new ItemPedido(item));
-  
+
     return new Pedido(pedidoAtualizado, itensAtuais);
   }
 

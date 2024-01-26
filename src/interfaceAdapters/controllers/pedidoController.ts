@@ -1,6 +1,7 @@
 import { AdicionaItemInput, RealizaPedidoInput, RemoveItemInput } from "~domain/entities/types/pedidoService.type";
 import { PedidoDTO, PedidoInput, StatusDoPedido } from "~domain/entities/types/pedidoType";
 import FilaRepository from "~domain/repositories/filaRepository";
+import MetodoPagamentoRepository from "~domain/repositories/MetodoPagamentoRepository";
 import PedidoRepository from "~domain/repositories/pedidoRepository";
 import ProdutoRepository from "~domain/repositories/produtoRepository";
 import PedidoUseCase from "~domain/useCases/pedidoUseCase";
@@ -28,11 +29,13 @@ export class PedidoController {
   }
 
   static async realizaPedido(
+    metodoPagamentoRepository: MetodoPagamentoRepository,
     filaRepository: FilaRepository,
     pedidoRepository: PedidoRepository,
     realizaPedidoInput: RealizaPedidoInput
   ): Promise<PedidoDTO | null> {
     return await PedidoUseCase.realizaPedido(
+      metodoPagamentoRepository,
       filaRepository,
       pedidoRepository,
       realizaPedidoInput
