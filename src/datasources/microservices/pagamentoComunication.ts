@@ -20,11 +20,7 @@ export default class MetodoPagamentoMicroserviceComunication implements MetodoPa
                 console.log("Metodo de pagamento encontrado!");
 
                 const metodosPagamento = await response.json();
-                console.log(metodosPagamento)
-                console.log(metodoId)
-                const aa = metodosPagamento?.message?.some((metodo: MetodoPagamento) => metodo.id === metodoId);
-                console.log(aa)
-                return aa
+                return metodosPagamento?.message?.some((metodo: MetodoPagamento) => metodo.id === metodoId);
             }
 
         } catch (err: unknown) {
