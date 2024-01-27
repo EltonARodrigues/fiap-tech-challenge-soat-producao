@@ -74,11 +74,18 @@ jobs:
             aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
             aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: Update ECS TASK Definition
+        env: 
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          AWS_ECS_ROLE: ${{ secrets.AWS_ECS_ROLE }}
+        run: |
+          sed -e "s/\${AWS_ACCOUNT_ID}/${AWS_ACCOUNT_ID}/g" -e "s/\${AWS_ECS_ROLE}/${AWS_ECS_ROLE}/g" ecs/task-definition-template.json > ecs/task-definition.json
+
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ecs/task-definition-template.json
+          task-definition: ecs/task-definition.json
           container-name: fiat-tech-producao
           image: eltonarodrigues/fiap-tech-challenge-soat-grupo-30:latest # TODO
           environment-variables: |
