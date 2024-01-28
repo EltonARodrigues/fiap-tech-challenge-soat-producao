@@ -8,6 +8,13 @@
         "subnets": ["${SUB_NET_1}", "${SUB_NET_2}", "${SUB_NET_3}"],
         "securityGroups": ["${SECURITY_GROUPS}"]
       }
-    }
+    },
+    "loadBalancers": [
+      {
+        "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:727078712610:targetgroup/ecs-target-group/156a3fe59411a757",
+        "containerName": "fiat-tech-producao",
+        "containerPort": 80
+      }
+    ]
   }
   
