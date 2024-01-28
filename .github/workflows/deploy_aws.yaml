@@ -78,8 +78,9 @@ jobs:
         env: 
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
           AWS_ECS_ROLE: ${{ secrets.AWS_ECS_ROLE }}
+          TARGET_GROUP_ARN: ${{ secrets.TARGET_GROUP_ARN }}
         run: |
-          sed -e "s/\${AWS_ACCOUNT_ID}/${AWS_ACCOUNT_ID}/g" -e "s/\${AWS_ECS_ROLE}/${AWS_ECS_ROLE}/g" ecs/task-definition-template.json > ecs/task-definition.json
+          sed -e "s/\${AWS_ACCOUNT_ID}/${AWS_ACCOUNT_ID}/g" -e "s/\${AWS_ECS_ROLE}/${AWS_ECS_ROLE}/g" -e "s/\${TARGET_GROUP_ARN}/${TARGET_GROUP_ARN}/g" ecs/task-definition-template.json > ecs/task-definition.json
 
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
