@@ -1,10 +1,10 @@
 {
-    "executionRoleArn": "arn:aws:iam::727078712610:role/ecs-task-role",
+    "executionRoleArn": "arn:aws:iam::${AWS_ACCOUNT_ID}:role/${AWS_ECS_ROLE}",
     "family": "fiat-tech-producao-family",
     "containerDefinitions": [
         {
             "name": "fiat-tech-producao",
-            "image": "",   
+            "image": "",
             "essential": true,
             "portMappings": [
                 {
