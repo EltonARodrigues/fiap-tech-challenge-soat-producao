@@ -16,6 +16,16 @@ export default class API {
     this.app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
   
     this.server = new Server({ appConfig: this.app });
+
+    const healthRouter = express.Router({});
+    healthRouter.get('/', async (_req, res) => {
+      return res.status(200).json({
+        uptime: process.uptime(),
+        message: 'OK',
+        timestamp: Date.now()
+      })});
+
+    this.server.addRouter('/', healthRouter);
   
     this.server.addRouter("/api/pedido", pedidoRouter);
   }
