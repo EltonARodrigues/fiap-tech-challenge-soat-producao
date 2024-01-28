@@ -118,6 +118,6 @@ jobs:
           SECURITY_GROUPS: ${{ secrets.SECURITY_GROUPS }}
 
         run: |
-          sed -e "s/\${CLUSTER_NAME}/${CLUSTER_NAME}/g" -e "s/\${SERVICE_NAME}/${SERVICE_NAME}/g" -e "s/\${TASK_DEFINITION}/${TASK_DEFINITION}/g" -e "s/\${SUB_NET_1}/${SUB_NET_1}/g" -e "s/\${SUB_NET_2}/${SUB_NET_2}/g" -e "s/\${SUB_NET_3}/${SUB_NET_3}/g" ecs/service-definition_template.json > ecs/service-definition.json
+          sed -e "s/\${CLUSTER_NAME}/${CLUSTER_NAME}/g" -e "s/\${SERVICE_NAME}/${SERVICE_NAME}/g" -e "s/\${TASK_DEFINITION}/${TASK_DEFINITION}/g" -e "s/\${SUB_NET_1}/${SUB_NET_1}/g" -e "s/\${SUB_NET_2}/${SUB_NET_2}/g" -e "s/\${SUB_NET_3}/${SUB_NET_3}/g" -e "s/\${SECURITY_GROUPS}/${SECURITY_GROUPS}/g" ecs/service-definition_template.json > ecs/service-definition.json
           cat ecs/service-definition.json
           aws ecs update-service --cluster ${{ secrets.CLUSTER_NAME }} --service ${{ secrets.SERVICE_NAME }} --force-new-deployment --region ${{ secrets.AWS_REGION }} || aws ecs create-service --cli-input-json file://ecs/service-definition.json
