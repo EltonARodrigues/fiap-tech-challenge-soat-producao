@@ -11,7 +11,7 @@
     },
     "loadBalancers": [
       {
-        "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:727078712610:targetgroup/ecs-target-group/0f86f908e3dddce6",
+        "targetGroupArn": "${TARGET_GROUP_ARN}",
         "containerName": "fiat-tech-producao",
         "containerPort": 3000
       }
