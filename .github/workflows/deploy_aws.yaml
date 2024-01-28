@@ -6,32 +6,32 @@ on:
       - main
 
 jobs:
-  # test:
-  #   runs-on: ubuntu-latest
-  #   name: Tests
-  #   steps:
-  #   - name: Checkout repository
-  #     uses: actions/checkout@v4
+  test:
+    runs-on: ubuntu-latest
+    name: Tests
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-  #   - name: Set up Node.js
-  #     uses: actions/setup-node@v3
-  #     with:
-  #       node-version: 20
-  #       cache: 'yarn'
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 20
+        cache: 'yarn'
 
-  #   - name: Run test and lint
-  #     run: |
-  #       yarn install --frozen-lockfile
-  #       yarn test --coverage
-  #       npx eslint src --ext .js,.jsx,.ts,.tsx
+    - name: Run test and lint
+      run: |
+        yarn install --frozen-lockfile
+        yarn test --coverage
+        npx eslint src --ext .js,.jsx,.ts,.tsx
 
-  #   - name: SonarQube Scan
-  #     uses: sonarsource/sonarqube-scan-action@master
-  #     env:
-  #       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-  #       SONAR_HOST_URL: 'https://sonarcloud.io'
+    - name: SonarQube Scan
+      uses: sonarsource/sonarqube-scan-action@master
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: 'https://sonarcloud.io'
   build_and_publish_image:
-    # needs: [ test ]
+    needs: [ test ]
     name: Push Docker image to Docker Hub
     runs-on: ubuntu-latest
     steps:
@@ -116,9 +116,8 @@ jobs:
           SUB_NET_2: ${{ secrets.SUB_NET_2 }}
           SUB_NET_3: ${{ secrets.SUB_NET_3 }}
           SECURITY_GROUPS: ${{ secrets.SECURITY_GROUPS }}
-          TARGET_GROUP_ARN: ${{ secrets.TARGET_GROUP_ARN }}
 
         run: |
-          sed -e "s/\${CLUSTER_NAME}/${CLUSTER_NAME}/g" -e "s/\${SERVICE_NAME}/${SERVICE_NAME}/g" -e "s/\${TASK_DEFINITION}/${TASK_DEFINITION}/g" -e "s/\${SUB_NET_1}/${SUB_NET_1}/g" -e "s/\${SUB_NET_2}/${SUB_NET_2}/g" -e "s/\${SUB_NET_3}/${SUB_NET_3}/g" -e "s/\${SECURITY_GROUPS}/${SECURITY_GROUPS}/g" -e "s/\${TARGET_GROUP_ARN}/${TARGET_GROUP_ARN}/g" ecs/service-definition_template.json > ecs/service-definition.json
+          sed -e "s/\${CLUSTER_NAME}/${CLUSTER_NAME}/g" -e "s/\${SERVICE_NAME}/${SERVICE_NAME}/g" -e "s/\${TASK_DEFINITION}/${TASK_DEFINITION}/g" -e "s/\${SUB_NET_1}/${SUB_NET_1}/g" -e "s/\${SUB_NET_2}/${SUB_NET_2}/g" -e "s/\${SUB_NET_3}/${SUB_NET_3}/g" ecs/service-definition_template.json > ecs/service-definition.json
           cat ecs/service-definition.json
           aws ecs update-service --cluster ${{ secrets.CLUSTER_NAME }} --service ${{ secrets.SERVICE_NAME }} --force-new-deployment --region ${{ secrets.AWS_REGION }} || aws ecs create-service --cli-input-json file://ecs/service-definition.json

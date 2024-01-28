@@ -8,13 +8,6 @@
         "subnets": ["${SUB_NET_1}", "${SUB_NET_2}", "${SUB_NET_3}"],
         "securityGroups": ["${SECURITY_GROUPS}"]
       }
-    },
-    "loadBalancers": [
-      {
-        "targetGroupArn": "${TARGET_GROUP_ARN}",
-        "containerName": "fiat-tech-producao",
-        "containerPort": 3000
-      }
-    ]
+    }
   }
   
