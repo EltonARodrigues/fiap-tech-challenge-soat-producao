@@ -1,18 +1,19 @@
+import dotenv from "dotenv";
 import { connect } from 'mongoose';
 
+dotenv.config();
 
-
-
-export default async function connectDB(dbHost:string, dbPort:string, dbName: string) {
+export default async function connectDB() {
     try {
-        console.log(`mongodb://${dbHost}:${dbPort}/${dbName}`)
-        await connect(`mongodb://${dbHost}:${dbPort}/${dbName}`,{
+        const DB_URI = process.env.DB_URI as string;
+        console.log(DB_URI)
+        await connect(DB_URI,{
             retryWrites: false
         });
         console.log('Connected to MongoDB');
 
     } catch(err) {
         console.error(`cMongoDB connection error: ${err}`)
-        await connectDB(dbHost, dbPort, dbName);
+        await connectDB();
     }
 }
