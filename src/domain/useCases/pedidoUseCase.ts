@@ -73,15 +73,15 @@ export default class PedidoUseCase {
 
     pedido.entregaRascunho();
 
-    const pedidoEntregue = await pedidoRepository.atualizaPedido(
-      pedido.toObject()
-    );
     const itensAtuais = pedido?.itens?.map((item) => new ItemPedido(item));
+    const pedidoFechado = new Pedido(await pedidoRepository.atualizaPedido(
+      pedido.toObject()
+    ), itensAtuais);
 
     const pagamentoBody: SendPaymentQueueBody = {
-      pedidoId: pedidoEntregue.id,
+      pedidoId: pedidoFechado.id,
       metodoDePagamento: realizaPedidoInput.metodoDePagamentoId,
-      valor: pedidoEntregue.valor,
+      valor: pedidoFechado.valor,
     };
 
     filaRepository.enviaParaFila<SendPaymentQueueBody>(
@@ -89,7 +89,7 @@ export default class PedidoUseCase {
       process.env.FILA_ENVIO_PAGAMENTO as string
     );
 
-    return new Pedido(pedidoEntregue, itensAtuais);
+    return pedidoFechado;
   }
 
   static async retornaProximoPedidoFila(pedidoRepository: PedidoRepository) {
