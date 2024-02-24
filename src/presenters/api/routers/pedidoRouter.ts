@@ -15,6 +15,8 @@ import {
   AdicionarItemBody,
   AdicionarItemParams,
   adicionarItemSchema,
+  DeletaPedidoQuery,
+  deletaPedidoSchema,
   EntregarPedidoParams,
   entregarPedidoSchema,
   FinalizarPreparoParams,
@@ -520,6 +522,61 @@ pedidoRouter.get(
       });
     } catch (err: unknown) {
       console.log(`Erro ao buscar pedido: ${err}`);
+      return next(err);
+    }
+  }
+);
+
+/**
+ * @openapi
+ * /pedido/{id}:
+ *   delete:
+ *     summary: cancela um pedido
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Id do pedido
+ *     tags:
+ *       - pedido
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: produto cancelado.
+ *       404:
+ *         description: pedido ou produto nao encontrado.
+ *       500:
+ *         description: Erro na api.
+ */
+pedidoRouter.delete(
+  "/:id/",
+  validaRequisicao(deletaPedidoSchema),
+  async (
+    req: Request<DeletaPedidoQuery>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { params } = req;
+      const { clienteId } = req;
+
+      const pedido = await PedidoController.cancelaPedido(
+        dbPedidosRepository,
+        {
+          clienteId,
+          pedidoId: params.id
+        }
+      );
+
+      return res.status(200).json({
+        status: "success",
+        message: pedido,
+      });
+    } catch (err: unknown) {
+      console.log(`Erro ao cancelar pedido: ${err}`);
       return next(err);
     }
   }

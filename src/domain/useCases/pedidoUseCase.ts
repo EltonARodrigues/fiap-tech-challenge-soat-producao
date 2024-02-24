@@ -20,6 +20,7 @@ import PedidoRepository, {
 import ProdutoRepository from "~domain/repositories/produtoRepository";
 
 import {
+  PedidoUsuario,
   RealizaPedidoInput,
   RemoveItemInput,
 } from "../entities/types/pedidoService.type";
@@ -38,6 +39,31 @@ export default class PedidoUseCase {
     }
 
     return null;
+  }
+
+  static async cancelaPedido(
+    pedidoRepository: PedidoRepository,
+    pedidoUsuarioInput: PedidoUsuario
+  ) {
+    const pedido = await PedidoUseCase.buscaPedido(
+      pedidoRepository,
+      pedidoUsuarioInput.pedidoId,
+      pedidoUsuarioInput.clienteId
+    );
+
+    if (!pedido) {
+      throwError("NOT_FOUND", "Pedido nao encontrado");
+    }
+
+    pedido.cancela();
+
+    const itensAtuais = pedido?.itens?.map((item) => new ItemPedido(item));
+    const pedidoCancelado = new Pedido(
+      await pedidoRepository.atualizaPedido(pedido.toObject()),
+      itensAtuais
+    );
+
+    return pedidoCancelado;
   }
 
   static async iniciaPedido(
@@ -74,9 +100,10 @@ export default class PedidoUseCase {
     pedido.entregaRascunho();
 
     const itensAtuais = pedido?.itens?.map((item) => new ItemPedido(item));
-    const pedidoFechado = new Pedido(await pedidoRepository.atualizaPedido(
-      pedido.toObject()
-    ), itensAtuais);
+    const pedidoFechado = new Pedido(
+      await pedidoRepository.atualizaPedido(pedido.toObject()),
+      itensAtuais
+    );
 
     const pagamentoBody: SendPaymentQueueBody = {
       pedidoId: pedidoFechado.id,

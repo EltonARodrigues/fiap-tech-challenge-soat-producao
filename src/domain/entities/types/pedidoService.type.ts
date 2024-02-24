@@ -8,6 +8,11 @@ export type RealizaPedidoInput = {
   metodoDePagamentoId: string;
 };
 
+export type PedidoUsuario = {
+  pedidoId: string;
+  clienteId: string;
+};
+
 export type AdicionaItemInput = {
   pedidoId: string;
   produtoId: string;

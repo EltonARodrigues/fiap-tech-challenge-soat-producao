@@ -93,6 +93,18 @@ export default class Pedido {
     this.status = statusDoPedido.PRONTO;
   }
 
+  cancela() {
+    if (this.status !== statusDoPedido.RASCUNHO && this.status !== statusDoPedido.FALHA) {
+      throwError(
+        "BAD_REQUEST",
+        `Não é possível alterar o status para ${statusDoPedido.CANCELADO}. Status atual do pedido é ${this.status}`
+      );
+    }
+    this.updatedAt = new Date();
+    this.status = statusDoPedido.CANCELADO;
+  }
+
+
   entregue() {
     if (this.status !== statusDoPedido.PRONTO) {
       throwError(

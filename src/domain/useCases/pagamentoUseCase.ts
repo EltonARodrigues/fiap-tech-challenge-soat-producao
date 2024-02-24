@@ -1,13 +1,25 @@
+import dotenv from "dotenv";
 import throwError from "handlerError/handlerError";
 
 import ItemPedido from "~domain/entities/itemPedido";
 import Pedido from "~domain/entities/pedido";
 import { PagamentoStatusUpdateBody } from "~domain/entities/types/PagamentoType";
-import { PedidoDTO } from "~domain/entities/types/pedidoType";
+import { PedidoDTO, statusDoPedido } from "~domain/entities/types/pedidoType";
+import FilaRepository from "~domain/repositories/filaRepository";
 import PedidoRepository from "~domain/repositories/pedidoRepository";
+
+dotenv.config();
+
+const NOTIFICATION_QUEUE = process.env.NOTIFICATION_QUEUE as string;
+interface NotificationBody {
+  sub: string;
+  pedidoId: string;
+  pedidoEmProducao: boolean;
+}
 
 export default class PagamentoUseCase {
   static async atualizaPagamentoPedido(
+    filaRepository: FilaRepository,
     pedidoRepository: PedidoRepository,
     pagamentoUpdate: PagamentoStatusUpdateBody
   ): Promise<PedidoDTO> {
@@ -31,7 +43,14 @@ export default class PagamentoUseCase {
 
     await pedidoRepository.atualizaPedido(pedido);
 
-    // chama servico de email
+    const pedidoEmProducao =
+      pedido.status === statusDoPedido.AGUARDANDO_PREPARO;
+
+    await filaRepository.enviaParaFila<NotificationBody>({
+      sub: pedido.clienteId,
+      pedidoId: pedido.id,
+      pedidoEmProducao
+    }, NOTIFICATION_QUEUE);
 
     return pedido.toObject();
   }

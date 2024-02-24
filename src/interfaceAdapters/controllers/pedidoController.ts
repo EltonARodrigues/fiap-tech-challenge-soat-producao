@@ -1,5 +1,6 @@
 import {
   AdicionaItemInput,
+  PedidoUsuario,
   RealizaPedidoInput,
   RemoveItemInput,
 } from "~domain/entities/types/pedidoService.type";
@@ -15,6 +16,17 @@ import ProdutoRepository from "~domain/repositories/produtoRepository";
 import PedidoUseCase from "~domain/useCases/pedidoUseCase";
 
 export class PedidoController {
+  static async cancelaPedido(
+    pedidoRepository: PedidoRepository,
+    pedidoUsuarioInput: PedidoUsuario
+  ): Promise<PedidoDTO | null> {
+
+    const pedidoCancelado = await PedidoUseCase.cancelaPedido(
+      pedidoRepository,
+      pedidoUsuarioInput
+    );
+    return pedidoCancelado;
+  }
   static async iniciaPedido(
     pedidoRepository: PedidoRepository,
     clienteId: string

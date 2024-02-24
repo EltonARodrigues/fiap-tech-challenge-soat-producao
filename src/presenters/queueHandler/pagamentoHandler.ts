@@ -17,6 +17,7 @@ async function queueCheck() {
   return pagamentos?.map(async (pagamento) => {
     try {
       await PagamentoController.atualizaPagamentoPedido(
+        filaService,
         pedidoRepository,
         pagamento.body
       );
