@@ -1,9 +1,14 @@
 import throwError from "handlerError/handlerError";
 import { v4 as uuidv4 } from "uuid";
 
-import { StatusDePagamento, statusDePagamento } from "./types/PagamentoType";
-import { PedidoDTO, PedidoInput, StatusDoPedido, statusDoPedido } from "./types/pedidoType";
 import ItemPedido from "./itemPedido";
+import { StatusDePagamento, statusDePagamento } from "./types/PagamentoType";
+import {
+  PedidoDTO,
+  PedidoInput,
+  StatusDoPedido,
+  statusDoPedido,
+} from "./types/pedidoType";
 
 export default class Pedido {
   public id: string;
@@ -37,7 +42,10 @@ export default class Pedido {
 
   entregaRascunho() {
     if (this.status !== statusDoPedido.RASCUNHO) {
-      throwError("BAD_REQUEST", `Não é possível alterar o status para ${statusDoPedido.AGUARDANDO_PAGAMENTO}. Status atual do pedido é ${this.status}`);
+      throwError(
+        "BAD_REQUEST",
+        `Não é possível alterar o status para ${statusDoPedido.AGUARDANDO_PAGAMENTO}. Status atual do pedido é ${this.status}`
+      );
     }
 
     this.updatedAt = new Date();
@@ -46,22 +54,28 @@ export default class Pedido {
   }
 
   atualizaPagamento(statusPagamento: StatusDePagamento) {
-
     if (this.status !== statusDePagamento.AGUARDANDO_PAGAMENTO) {
-      throwError("BAD_REQUEST", `Só é permitido alterar o status do pedido quando o status é ${statusDoPedido.AGUARDANDO_PAGAMENTO}. Status Atual: ${this.status}`);
+      throwError(
+        "BAD_REQUEST",
+        `Só é permitido alterar o status do pedido quando o status é ${statusDoPedido.AGUARDANDO_PAGAMENTO}. Status Atual: ${this.status}`
+      );
     }
 
     if (statusPagamento !== statusDePagamento.AGUARDANDO_PAGAMENTO) {
       this.updatedAt = new Date();
-      this.status = statusPagamento === statusDePagamento.PAGAMENTO_APROVADO
-        ? statusDoPedido.AGUARDANDO_PREPARO
-        : statusDoPedido.FALHA;
+      this.status =
+        statusPagamento === statusDePagamento.PAGAMENTO_APROVADO
+          ? statusDoPedido.AGUARDANDO_PREPARO
+          : statusDoPedido.FALHA;
     }
   }
 
   emPreparo() {
     if (this.status !== statusDoPedido.AGUARDANDO_PREPARO) {
-      throwError("BAD_REQUEST", `Não é possível alterar o status para ${statusDoPedido.EM_PREPARO}. Status atual do pedido é ${this.status}`);
+      throwError(
+        "BAD_REQUEST",
+        `Não é possível alterar o status para ${statusDoPedido.EM_PREPARO}. Status atual do pedido é ${this.status}`
+      );
     }
     this.updatedAt = new Date();
     this.status = statusDoPedido.EM_PREPARO;
@@ -69,7 +83,10 @@ export default class Pedido {
 
   pronto() {
     if (this.status !== statusDoPedido.EM_PREPARO) {
-      throwError("BAD_REQUEST", `Não é possível alterar o status para ${statusDoPedido.PRONTO}. Status atual do pedido é ${this.status}`);
+      throwError(
+        "BAD_REQUEST",
+        `Não é possível alterar o status para ${statusDoPedido.PRONTO}. Status atual do pedido é ${this.status}`
+      );
     }
     this.updatedAt = new Date();
     this.status = statusDoPedido.PRONTO;
@@ -77,7 +94,10 @@ export default class Pedido {
 
   entregue() {
     if (this.status !== statusDoPedido.PRONTO) {
-      throwError("BAD_REQUEST", `Não é possível alterar o status para ${statusDoPedido.ENTREGUE}. Status atual do pedido é ${this.status}`);
+      throwError(
+        "BAD_REQUEST",
+        `Não é possível alterar o status para ${statusDoPedido.ENTREGUE}. Status atual do pedido é ${this.status}`
+      );
     }
     this.updatedAt = new Date();
     this.retiradoEm = new Date();
@@ -86,13 +106,19 @@ export default class Pedido {
 
   validaValor() {
     if (this.valor <= 0) {
-      throwError("BAD_REQUEST", 'Não é possível realizar um pedido sem nenhum valor');
+      throwError(
+        "BAD_REQUEST",
+        "Não é possível realizar um pedido sem nenhum valor"
+      );
     }
   }
 
   adicionarItem(item: ItemPedido) {
     if (this.status !== statusDoPedido.RASCUNHO) {
-      throwError("BAD_REQUEST", "Não é possível adicionar itens a um pedido que não está em rascunho");
+      throwError(
+        "BAD_REQUEST",
+        "Não é possível adicionar itens a um pedido que não está em rascunho"
+      );
     }
 
     this.itens.push(item);
@@ -102,22 +128,29 @@ export default class Pedido {
 
   removeItem(itemId: string) {
     if (this.status !== statusDoPedido.RASCUNHO) {
-      throwError("BAD_REQUEST", "Não é possível remover itens a um pedido que não está em rascunho");
+      throwError(
+        "BAD_REQUEST",
+        "Não é possível remover itens a um pedido que não está em rascunho"
+      );
     }
 
-    const findItem = this.itens?.find(item => item.id === itemId);
+    const findItem = this.itens?.find((item) => item.id === itemId);
 
     if (!findItem) {
       throwError("BAD_REQUEST", `Item ${itemId} do pedido nao entrado`);
     }
 
-    this.itens = this.itens?.filter(item => item.id !== itemId);
+    this.itens = this.itens?.filter((item) => item.id !== itemId);
     this.calculaTotal();
     this.updatedAt = new Date();
   }
 
   calculaTotal() {
-    this.valor = this.itens?.reduce((total: number, item: ItemPedido,) => total + item.calculaTotal(), 0) ?? 0;
+    this.valor =
+      this.itens?.reduce(
+        (total: number, item: ItemPedido) => total + item.calculaTotal(),
+        0
+      ) ?? 0;
   }
 
   toObject(): PedidoDTO {

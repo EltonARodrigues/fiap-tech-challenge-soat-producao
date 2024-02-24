@@ -1,4 +1,3 @@
-
 import { ItemDoPedidoDTO } from "./itensPedidoType";
 
 export interface PedidoInput {

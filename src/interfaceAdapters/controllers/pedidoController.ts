@@ -1,5 +1,13 @@
-import { AdicionaItemInput, RealizaPedidoInput, RemoveItemInput } from "~domain/entities/types/pedidoService.type";
-import { PedidoDTO, PedidoInput, StatusDoPedido } from "~domain/entities/types/pedidoType";
+import {
+  AdicionaItemInput,
+  RealizaPedidoInput,
+  RemoveItemInput,
+} from "~domain/entities/types/pedidoService.type";
+import {
+  PedidoDTO,
+  PedidoInput,
+  StatusDoPedido,
+} from "~domain/entities/types/pedidoType";
 import FilaRepository from "~domain/repositories/filaRepository";
 import MetodoPagamentoRepository from "~domain/repositories/MetodoPagamentoRepository";
 import PedidoRepository from "~domain/repositories/pedidoRepository";
@@ -18,8 +26,8 @@ export class PedidoController {
       retiradoEm: null,
       createdAt: new Date(),
       updatedAt: null,
-      deletedAt: null
-    }
+      deletedAt: null,
+    };
 
     const pedidoCriada = await PedidoUseCase.iniciaPedido(
       pedidoRepository,
@@ -46,20 +54,14 @@ export class PedidoController {
     pedidoRepository: PedidoRepository,
     id: string
   ): Promise<PedidoDTO | null> {
-    return await PedidoUseCase.iniciaPreparo(
-      pedidoRepository,
-      id
-    );
+    return await PedidoUseCase.iniciaPreparo(pedidoRepository, id);
   }
 
   static async finalizaPreparo(
     pedidoRepository: PedidoRepository,
     id: string
   ): Promise<PedidoDTO> {
-    return await PedidoUseCase.finalizaPreparo(
-      pedidoRepository,
-      id
-    );
+    return await PedidoUseCase.finalizaPreparo(pedidoRepository, id);
   }
 
   static async adicionaItem(
@@ -78,20 +80,14 @@ export class PedidoController {
     pedidoRepository: PedidoRepository,
     removeItemInput: RemoveItemInput
   ): Promise<PedidoDTO | null> {
-    return await PedidoUseCase.removeItem(
-      pedidoRepository,
-      removeItemInput
-    );
+    return await PedidoUseCase.removeItem(pedidoRepository, removeItemInput);
   }
 
   static async entregaPedido(
     pedidoRepository: PedidoRepository,
     id: string
   ): Promise<PedidoDTO | null> {
-    return await PedidoUseCase.entregaPedido(
-      pedidoRepository,
-      id
-    );
+    return await PedidoUseCase.entregaPedido(pedidoRepository, id);
   }
 
   static async listaPedidos(
@@ -105,5 +101,4 @@ export class PedidoController {
       clienteId
     );
   }
-
 }

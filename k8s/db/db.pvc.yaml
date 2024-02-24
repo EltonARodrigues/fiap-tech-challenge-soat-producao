@@ -11,11 +11,11 @@ volumeBindingMode: WaitForFirstConsumer
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name:  tech-challenge-db-pvc
+  name: tech-challenge-db-pvc
 spec:
   accessModes:
     - ReadWriteOnce
   storageClassName: standard
   resources:
     requests:
-      storage: 1Gi  # 1G para teste
+      storage: 1Gi # 1G para teste

@@ -1,10 +1,18 @@
-import { DeleteMessageCommand, ReceiveMessageCommand, SendMessageCommand, SQSClient, SQSClientConfig } from '@aws-sdk/client-sqs';
-import dotenv from 'dotenv';
+import {
+  DeleteMessageCommand,
+  ReceiveMessageCommand,
+  SendMessageCommand,
+  SQSClient,
+  SQSClientConfig,
+} from "@aws-sdk/client-sqs";
+import dotenv from "dotenv";
 
-import FilaRepository, { MensagemResponse, SQSResponse } from '~domain/repositories/filaRepository';
+import FilaRepository, {
+  MensagemResponse,
+  SQSResponse,
+} from "~domain/repositories/filaRepository";
 
 dotenv.config();
-
 
 export default class FilaService implements FilaRepository {
   private sqsClient: SQSClient;
@@ -15,17 +23,24 @@ export default class FilaService implements FilaRepository {
       credentials: {
         accessKeyId: process.env.AWS_ACCESS_KEY as string,
         secretAccessKey: process.env.AWS_SECRET_KEY as string,
-      }
-    }
+      },
+    };
 
-    if (process.env.NODE_ENV === "development" || process.env.NODE_ENV === "test") {
-      configuration.endpoint = 'http://localhost:4566'
+    if (
+      process.env.NODE_ENV === "development" ||
+      process.env.NODE_ENV === "test"
+    ) {
+      configuration.endpoint = "http://localhost:4566";
     }
-    console.log(configuration)
+    console.log(configuration);
     this.sqsClient = new SQSClient(configuration);
   }
 
-  async enviaParaDLQ(fila: string, filaDLQ: string, response: SQSResponse): Promise<boolean> {
+  async enviaParaDLQ(
+    fila: string,
+    filaDLQ: string,
+    response: SQSResponse
+  ): Promise<boolean> {
     const parametrosDelete = {
       QueueUrl: fila,
       ReceiptHandle: response.ReceiptHandle,
@@ -43,16 +58,19 @@ export default class FilaService implements FilaRepository {
       const sendToDLQCommand = new SendMessageCommand(sendMessageParams);
       await this.sqsClient.send(sendToDLQCommand);
 
-      console.log('Mensagem movida para DLQ.');
+      console.log("Mensagem movida para DLQ.");
       return true;
     } catch (error) {
-      console.error('Error em mover para DLQ:', error);
+      console.error("Error em mover para DLQ:", error);
     }
 
-    return false
+    return false;
   }
 
-  async deletaMensagemProcessada(fila: string, receiptHandle: string): Promise<boolean> {
+  async deletaMensagemProcessada(
+    fila: string,
+    receiptHandle: string
+  ): Promise<boolean> {
     try {
       const command = new DeleteMessageCommand({
         QueueUrl: fila,
@@ -60,26 +78,25 @@ export default class FilaService implements FilaRepository {
       });
 
       await this.sqsClient.send(command);
-      console.log('Message removida da fila');
+      console.log("Message removida da fila");
       return true;
     } catch (error) {
-      console.error('Error deleting message:', error);
+      console.error("Error deleting message:", error);
     }
     return false;
   }
-
 
   async enviaParaFila<T>(mensagem: T, fila: string): Promise<boolean> {
     try {
       const params = {
         QueueUrl: fila,
-        MessageBody: JSON.stringify(mensagem)
+        MessageBody: JSON.stringify(mensagem),
       };
 
       const command = new SendMessageCommand(params);
 
       const data = await this.sqsClient.send(command);
-      console.log('Mensagem enviada com sucesso:', data.MessageId);
+      console.log("Mensagem enviada com sucesso:", data.MessageId);
 
       return true;
     } catch (err) {
@@ -93,7 +110,7 @@ export default class FilaService implements FilaRepository {
     const params = {
       QueueUrl: fila,
       MaxNumberOfMessages: 10,
-      WaitTimeSeconds: 20
+      WaitTimeSeconds: 20,
     };
 
     const command = new ReceiveMessageCommand(params);
@@ -102,26 +119,30 @@ export default class FilaService implements FilaRepository {
       const data = await this.sqsClient.send(command);
       if (data.Messages && data.Messages.length > 0) {
         console.log(`Mensagens recebidas: ${data.Messages.length}`);
-        return data?.Messages?.reduce((mensagens: MensagemResponse<T>[], mensagemReceived) => {
-          try {
-            console.log('data')
-            console.log(mensagemReceived?.Body)
-            const body = JSON.parse(mensagemReceived?.Body as string);
-            mensagens.push({ receiptHandle: mensagemReceived.ReceiptHandle, body });
-          } catch (error) {
-            console.error(`Invalid JSON: ${mensagemReceived?.Body}`);
-          }
-          return mensagens;
-        }, []);
+        return data?.Messages?.reduce(
+          (mensagens: MensagemResponse<T>[], mensagemReceived) => {
+            try {
+              console.log("data");
+              console.log(mensagemReceived?.Body);
+              const body = JSON.parse(mensagemReceived?.Body as string);
+              mensagens.push({
+                receiptHandle: mensagemReceived.ReceiptHandle,
+                body,
+              });
+            } catch (error) {
+              console.error(`Invalid JSON: ${mensagemReceived?.Body}`);
+            }
+            return mensagens;
+          },
+          []
+        );
       }
 
-      console.log('Nenhuma mensagem na fila.');
-
+      console.log("Nenhuma mensagem na fila.");
     } catch (error) {
       console.error(`Erro ao receber mensagens da fila ${fila}:`, error);
     }
 
     return null;
   }
-
 }

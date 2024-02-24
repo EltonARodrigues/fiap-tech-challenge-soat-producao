@@ -2,9 +2,7 @@ import express, { Express } from "express";
 import swaggerUi from "swagger-ui-express";
 
 import { Server } from "./config/server.config";
-import {
-  pedidoRouter,
-} from "./routers/index";
+import { pedidoRouter } from "./routers/index";
 import specs from "./swaggerConfig";
 
 export default class API {
@@ -14,19 +12,20 @@ export default class API {
   constructor() {
     this.app = express();
     this.app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
-  
+
     this.server = new Server({ appConfig: this.app });
 
     const healthRouter = express.Router({});
-    healthRouter.get('/', async (_req, res) => {
+    healthRouter.get("/", async (_req, res) => {
       return res.status(200).json({
         uptime: process.uptime(),
-        message: 'OK',
-        timestamp: Date.now()
-      })});
+        message: "OK",
+        timestamp: Date.now(),
+      });
+    });
 
-    this.server.addRouter('/', healthRouter);
-  
+    this.server.addRouter("/", healthRouter);
+
     this.server.addRouter("/api/pedido", pedidoRouter);
   }
 
@@ -38,5 +37,3 @@ export default class API {
     this.server.init();
   }
 }
-
-

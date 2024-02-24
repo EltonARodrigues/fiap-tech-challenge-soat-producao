@@ -4,11 +4,13 @@ import PedidoRepository from "~domain/repositories/pedidoRepository";
 import PagamentoUseCase from "~domain/useCases/pagamentoUseCase";
 
 export class PagamentoController {
-    static async atualizaPagamentoPedido(pedidoRepository: PedidoRepository,
-        pagamentoUpdate: PagamentoStatusUpdateBody): Promise<PedidoDTO> {
-        return await PagamentoUseCase.atualizaPagamentoPedido(
-            pedidoRepository,
-            pagamentoUpdate
-        );
-    }
+  static async atualizaPagamentoPedido(
+    pedidoRepository: PedidoRepository,
+    pagamentoUpdate: PagamentoStatusUpdateBody
+  ): Promise<PedidoDTO> {
+    return await PagamentoUseCase.atualizaPagamentoPedido(
+      pedidoRepository,
+      pagamentoUpdate
+    );
+  }
 }

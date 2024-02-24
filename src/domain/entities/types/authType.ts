@@ -1,4 +1,4 @@
 export enum TipoUsuario {
-    CLIENT = "Client",
-    ADMIN = "Admin",
-  }
+  CLIENT = "Client",
+  ADMIN = "Admin",
+}

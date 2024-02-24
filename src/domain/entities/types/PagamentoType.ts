@@ -10,5 +10,5 @@ export type StatusDePagamento =
 
 export interface PagamentoStatusUpdateBody {
   pedidoId: string;
-  statusPagamento: StatusDePagamento
+  statusPagamento: StatusDePagamento;
 }

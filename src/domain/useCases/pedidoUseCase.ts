@@ -3,7 +3,10 @@ import throwError from "handlerError/handlerError";
 
 import ItemPedido from "~domain/entities/itemPedido";
 import Pedido from "~domain/entities/pedido";
-import { ItemDoPedidoDTO, ItemDoPedidoInput } from "~domain/entities/types/itensPedidoType";
+import {
+  ItemDoPedidoDTO,
+  ItemDoPedidoInput,
+} from "~domain/entities/types/itensPedidoType";
 import {
   PedidoDTO,
   PedidoInput,
@@ -11,7 +14,9 @@ import {
 } from "~domain/entities/types/pedidoType";
 import FilaRepository from "~domain/repositories/filaRepository";
 import MetodoPagamentoRepository from "~domain/repositories/MetodoPagamentoRepository";
-import PedidoRepository, { SendPaymentQueueBody } from "~domain/repositories/pedidoRepository";
+import PedidoRepository, {
+  SendPaymentQueueBody,
+} from "~domain/repositories/pedidoRepository";
 import ProdutoRepository from "~domain/repositories/produtoRepository";
 
 import {
@@ -19,14 +24,12 @@ import {
   RemoveItemInput,
 } from "../entities/types/pedidoService.type";
 
-
 export default class PedidoUseCase {
   static async buscaPedido(
     pedidoRepository: PedidoRepository,
     pedidoId: string,
     clienteId?: string | null
   ) {
-
     const pedido = await pedidoRepository.retornaPedido(pedidoId, clienteId);
 
     if (pedido) {
@@ -51,7 +54,10 @@ export default class PedidoUseCase {
     pedidoRepository: PedidoRepository,
     realizaPedidoInput: RealizaPedidoInput
   ): Promise<PedidoDTO | null> {
-    const metodoEncontrado = await metodoPagamentoRepository.retornaMetodoPagamentoValido(realizaPedidoInput.metodoDePagamentoId)
+    const metodoEncontrado =
+      await metodoPagamentoRepository.retornaMetodoPagamentoValido(
+        realizaPedidoInput.metodoDePagamentoId
+      );
     if (!metodoEncontrado) {
       throwError("BAD_REQUEST", "Metodo de pagamento nao encontrado!");
     }
@@ -67,26 +73,31 @@ export default class PedidoUseCase {
 
     pedido.entregaRascunho();
 
-    const pedidoEntregue = await pedidoRepository.atualizaPedido(pedido.toObject())
+    const pedidoEntregue = await pedidoRepository.atualizaPedido(
+      pedido.toObject()
+    );
     const itensAtuais = pedido?.itens?.map((item) => new ItemPedido(item));
 
     const pagamentoBody: SendPaymentQueueBody = {
       pedidoId: pedidoEntregue.id,
       metodoDePagamento: realizaPedidoInput.metodoDePagamentoId,
       valor: pedidoEntregue.valor,
-    }
+    };
 
-    filaRepository.enviaParaFila<SendPaymentQueueBody>(pagamentoBody, process.env.FILA_ENVIO_PAGAMENTO as string)
+    filaRepository.enviaParaFila<SendPaymentQueueBody>(
+      pagamentoBody,
+      process.env.FILA_ENVIO_PAGAMENTO as string
+    );
 
     return new Pedido(pedidoEntregue, itensAtuais);
   }
 
-  static async retornaProximoPedidoFila(
-    pedidoRepository: PedidoRepository,
-  ) {
+  static async retornaProximoPedidoFila(pedidoRepository: PedidoRepository) {
     const proximoPedido = await pedidoRepository.retornaProximoPedidoFila();
     if (proximoPedido) {
-      const itensAtuais = proximoPedido?.itens?.map((item) => new ItemPedido(item));
+      const itensAtuais = proximoPedido?.itens?.map(
+        (item) => new ItemPedido(item)
+      );
       return new Pedido(proximoPedido, itensAtuais);
     }
 
@@ -98,18 +109,17 @@ export default class PedidoUseCase {
     pedidoId?: string
   ): Promise<PedidoDTO | null> {
     const pedido = pedidoId
-      ? await PedidoUseCase.buscaPedido(
-        pedidoRepository,
-        pedidoId
-      )
-      : await PedidoUseCase.retornaProximoPedidoFila(
-        pedidoRepository,
-      );
+      ? await PedidoUseCase.buscaPedido(pedidoRepository, pedidoId)
+      : await PedidoUseCase.retornaProximoPedidoFila(pedidoRepository);
 
     if (pedido) {
       pedido.emPreparo();
-      const pedidoAtualizado = await pedidoRepository.atualizaPedido(pedido.toObject())
-      const itensAtuais = pedidoAtualizado?.itens?.map((item) => new ItemPedido(item));
+      const pedidoAtualizado = await pedidoRepository.atualizaPedido(
+        pedido.toObject()
+      );
+      const itensAtuais = pedidoAtualizado?.itens?.map(
+        (item) => new ItemPedido(item)
+      );
 
       return new Pedido(pedidoAtualizado, itensAtuais);
     }
@@ -121,10 +131,7 @@ export default class PedidoUseCase {
     pedidoRepository: PedidoRepository,
     pedidoId: string
   ): Promise<PedidoDTO> {
-    const pedido = await PedidoUseCase.buscaPedido(
-      pedidoRepository,
-      pedidoId
-    );
+    const pedido = await PedidoUseCase.buscaPedido(pedidoRepository, pedidoId);
 
     if (!pedido) {
       throwError("NOT_FOUND", "Pedido nao encontrado");
@@ -132,8 +139,12 @@ export default class PedidoUseCase {
 
     pedido.pronto();
 
-    const pedidoAtualizado = await pedidoRepository.atualizaPedido(pedido.toObject())
-    const itensAtuais = pedidoAtualizado?.itens?.map((item) => new ItemPedido(item));
+    const pedidoAtualizado = await pedidoRepository.atualizaPedido(
+      pedido.toObject()
+    );
+    const itensAtuais = pedidoAtualizado?.itens?.map(
+      (item) => new ItemPedido(item)
+    );
 
     return new Pedido(pedidoAtualizado, itensAtuais);
   }
@@ -142,10 +153,7 @@ export default class PedidoUseCase {
     pedidoRepository: PedidoRepository,
     pedidoId: string
   ): Promise<PedidoDTO> {
-    const pedido = await PedidoUseCase.buscaPedido(
-      pedidoRepository,
-      pedidoId
-    );
+    const pedido = await PedidoUseCase.buscaPedido(pedidoRepository, pedidoId);
 
     if (!pedido) {
       throwError("NOT_FOUND", "Pedido nao encontrado");
@@ -153,8 +161,12 @@ export default class PedidoUseCase {
 
     pedido.entregue();
 
-    const pedidoAtualizado = await pedidoRepository.atualizaPedido(pedido.toObject())
-    const itensAtuais = pedidoAtualizado?.itens?.map((item) => new ItemPedido(item));
+    const pedidoAtualizado = await pedidoRepository.atualizaPedido(
+      pedido.toObject()
+    );
+    const itensAtuais = pedidoAtualizado?.itens?.map(
+      (item) => new ItemPedido(item)
+    );
 
     return new Pedido(pedidoAtualizado, itensAtuais);
   }
@@ -189,8 +201,12 @@ export default class PedidoUseCase {
 
     pedido.adicionarItem(novoItem);
 
-    const pedidoAtualizado = await pedidoRepository.atualizaPedido(pedido.toObject())
-    const itensAtuais = pedidoAtualizado?.itens?.map((item) => new ItemPedido(item));
+    const pedidoAtualizado = await pedidoRepository.atualizaPedido(
+      pedido.toObject()
+    );
+    const itensAtuais = pedidoAtualizado?.itens?.map(
+      (item) => new ItemPedido(item)
+    );
 
     return new Pedido(pedidoAtualizado, itensAtuais);
   }
@@ -211,8 +227,12 @@ export default class PedidoUseCase {
 
     pedido.removeItem(removeItemInput.itemId);
 
-    const pedidoAtualizado = await pedidoRepository.atualizaPedido(pedido.toObject())
-    const itensAtuais = pedidoAtualizado?.itens?.map((item) => new ItemPedido(item));
+    const pedidoAtualizado = await pedidoRepository.atualizaPedido(
+      pedido.toObject()
+    );
+    const itensAtuais = pedidoAtualizado?.itens?.map(
+      (item) => new ItemPedido(item)
+    );
 
     return new Pedido(pedidoAtualizado, itensAtuais);
   }
