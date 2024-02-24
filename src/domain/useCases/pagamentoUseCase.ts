@@ -31,6 +31,8 @@ export default class PagamentoUseCase {
 
     await pedidoRepository.atualizaPedido(pedido);
 
+    // chama servico de email
+
     return pedido.toObject();
   }
 }

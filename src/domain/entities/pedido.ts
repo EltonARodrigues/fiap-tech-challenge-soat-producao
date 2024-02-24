@@ -41,16 +41,17 @@ export default class Pedido {
   }
 
   entregaRascunho() {
-    if (this.status !== statusDoPedido.RASCUNHO) {
-      throwError(
-        "BAD_REQUEST",
-        `Não é possível alterar o status para ${statusDoPedido.AGUARDANDO_PAGAMENTO}. Status atual do pedido é ${this.status}`
-      );
+    if (this.status === statusDoPedido.RASCUNHO || this.status === statusDoPedido.FALHA) {
+      this.updatedAt = new Date();
+      this.validaValor();
+      this.status = statusDoPedido.AGUARDANDO_PAGAMENTO;
     }
 
-    this.updatedAt = new Date();
-    this.validaValor();
-    this.status = statusDoPedido.AGUARDANDO_PAGAMENTO;
+    throwError(
+      "BAD_REQUEST",
+      `Não é possível alterar o status para ${statusDoPedido.AGUARDANDO_PAGAMENTO}. Status atual do pedido é ${this.status}`
+    );
+
   }
 
   atualizaPagamento(statusPagamento: StatusDePagamento) {
