@@ -10,7 +10,7 @@ import PedidoRepository from "~domain/repositories/pedidoRepository";
 
 dotenv.config();
 
-const NOTIFICATION_QUEUE = process.env.NOTIFICATION_QUEUE as string;
+const FILA_NOTIFICACAO = process.env.FILA_NOTIFICACAO as string;
 interface NotificationBody {
   sub: string;
   pedidoId: string;
@@ -50,7 +50,7 @@ export default class PagamentoUseCase {
       sub: pedido.clienteId,
       pedidoId: pedido.id,
       pedidoEmProducao
-    }, NOTIFICATION_QUEUE);
+    }, FILA_NOTIFICACAO);
 
     return pedido.toObject();
   }
