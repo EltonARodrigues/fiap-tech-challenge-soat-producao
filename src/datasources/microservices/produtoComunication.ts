@@ -13,12 +13,13 @@ export default class ProdutoMicroserviceComunication
 {
   async retornaProduto(idProduto: string): Promise<ProdutoDTO | null> {
     try {
-      const response = await fetch(`${PRODUTO_MS_URL}/produto/${idProduto}`);
+      const response = await fetch(`${PRODUTO_MS_URL}/api/produto/${idProduto}`);
 
       if (response.status === 200) {
         console.log("Pedido encontrado!");
 
-        return await response.json();
+        const result =  await response.json();
+        return result?.produto;
       }
 
       if (response.status === 404) {

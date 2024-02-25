@@ -146,6 +146,23 @@ describe("Pedido", () => {
     expect(pedido.status).toBe(statusDoPedido.AGUARDANDO_PAGAMENTO);
   });
 
+  it("Teste cancelar  pedido -> CANCELADO", async () => {
+    const pedido = new Pedido({
+      clienteId: uuidv4(),
+      status: statusDoPedido.RASCUNHO,
+      valor: 0,
+      retiradoEm: null,
+      createdAt,
+      updatedAt: null,
+      deletedAt: null,
+    });
+
+    pedido.adicionarItem(item);
+
+    pedido.cancela();
+    expect(pedido.status).toBe(statusDoPedido.CANCELADO);
+  });
+
   it("Teste finalizar criacao do pedido com status Errado -> AGUARDANDO_PAGAMENTO", async () => {
     const pedido = new Pedido({
       clienteId: uuidv4(),

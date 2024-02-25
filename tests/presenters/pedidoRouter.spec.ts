@@ -1,7 +1,7 @@
 import express from "express";
 import supertest from "supertest";
 
-import { PedidoDTO } from "../../src/domain/entities/types/pedidoType";
+import { PedidoDTO, statusDoPedido } from "../../src/domain/entities/types/pedidoType";
 import throwError from "../../src/handlerError/handlerError";
 import { PedidoController } from "../../src/interfaceAdapters/controllers/pedidoController";
 import { Server } from "../../src/presenters/api/config/server.config";
@@ -172,6 +172,24 @@ describe("pedidoRouter()", () => {
       .then((response) => {
         // Check the response type and length
         expect(response?.body?.message?.itens?.length).toBe(0);
+      });
+  });
+
+  it("Deve cancelar um pedido com o status Rascunho", async () => {
+    const responseExpected = {
+      ...pedidoMock,
+      status: statusDoPedido.CANCELADO,
+
+    };
+    PedidoController.cancelaPedido = jest.fn().mockResolvedValue(responseExpected);
+
+
+    await supertest(await createServer())
+      .delete(`/api/pedido/${pedidoMock.id}`)
+      .expect(200)
+      .then((response) => {
+        expect(response?.body?.message?.status).toBe(statusDoPedido.CANCELADO);
+        expect(response?.body?.message?.id).toBe(pedidoMock?.id);
       });
   });
 

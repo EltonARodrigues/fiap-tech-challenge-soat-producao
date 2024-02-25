@@ -3,11 +3,14 @@ import {
   statusDePagamento,
 } from "../../src/domain/entities/types/PagamentoType";
 import { statusDoPedido } from "../../src/domain/entities/types/pedidoType";
+import FilaRepository from "../../src/domain/repositories/filaRepository";
 import PedidoRepository from "../../src/domain/repositories/pedidoRepository";
 import PagamentoUseCase from "../../src/domain/useCases/pagamentoUseCase";
 
 describe("PagamentoUseCase", () => {
   let pedidoRepositoryMock: PedidoRepository;
+  let filaRepository: FilaRepository;
+
   const createdAt = new Date();
 
   beforeEach(() => {
@@ -31,6 +34,12 @@ describe("PagamentoUseCase", () => {
         updatedAt: null,
       }),
     };
+    filaRepository = {
+      enviaParaFila: jest.fn().mockResolvedValue(null),
+      recebeMensagem: jest.fn().mockResolvedValue(null),
+      deletaMensagemProcessada: jest.fn().mockResolvedValue(null),
+      enviaParaDLQ: jest.fn().mockResolvedValue(null),
+    };
   });
 
   it("Testa atualizar pagamento aprovado no Pedido", async () => {
@@ -40,6 +49,7 @@ describe("PagamentoUseCase", () => {
     };
 
     const novoPedido = await PagamentoUseCase.atualizaPagamentoPedido(
+      filaRepository,
       pedidoRepositoryMock,
       pagamentoUpdate
     );
@@ -53,6 +63,7 @@ describe("PagamentoUseCase", () => {
     };
 
     const novoPedido = await PagamentoUseCase.atualizaPagamentoPedido(
+      filaRepository,
       pedidoRepositoryMock,
       pagamentoUpdate
     );
@@ -69,6 +80,7 @@ describe("PagamentoUseCase", () => {
 
     try {
       await PagamentoUseCase.atualizaPagamentoPedido(
+        filaRepository,
         pedidoRepositoryMock,
         pagamentoUpdate
       );

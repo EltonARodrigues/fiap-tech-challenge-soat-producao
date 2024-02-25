@@ -1,7 +1,6 @@
 import throwError from "handlerError/handlerError";
 import { v4 as uuidv4 } from "uuid";
 
-import ItemPedido from "./itemPedido";
 import { StatusDePagamento, statusDePagamento } from "./types/PagamentoType";
 import {
   PedidoDTO,
@@ -9,6 +8,7 @@ import {
   StatusDoPedido,
   statusDoPedido,
 } from "./types/pedidoType";
+import ItemPedido from "./itemPedido";
 
 export default class Pedido {
   public id: string;
@@ -41,17 +41,16 @@ export default class Pedido {
   }
 
   entregaRascunho() {
-    if (this.status === statusDoPedido.RASCUNHO || this.status === statusDoPedido.FALHA) {
-      this.updatedAt = new Date();
-      this.validaValor();
-      this.status = statusDoPedido.AGUARDANDO_PAGAMENTO;
+    if (!(this.status === statusDoPedido.RASCUNHO || this.status === statusDoPedido.FALHA)) {
+      throwError(
+        "BAD_REQUEST",
+        `Não é possível alterar o status para ${statusDoPedido.AGUARDANDO_PAGAMENTO}. Status atual do pedido é ${this.status}`
+      );
     }
 
-    throwError(
-      "BAD_REQUEST",
-      `Não é possível alterar o status para ${statusDoPedido.AGUARDANDO_PAGAMENTO}. Status atual do pedido é ${this.status}`
-    );
-
+    this.updatedAt = new Date();
+    this.validaValor();
+    this.status = statusDoPedido.AGUARDANDO_PAGAMENTO;
   }
 
   atualizaPagamento(statusPagamento: StatusDePagamento) {

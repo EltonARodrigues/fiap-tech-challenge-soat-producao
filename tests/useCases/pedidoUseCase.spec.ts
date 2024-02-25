@@ -3,7 +3,10 @@ import {
   RealizaPedidoInput,
   RemoveItemInput,
 } from "../../src/domain/entities/types/pedidoService.type";
-import { PedidoInput } from "../../src/domain/entities/types/pedidoType";
+import {
+  PedidoInput,
+  statusDoPedido,
+} from "../../src/domain/entities/types/pedidoType";
 import FilaRepository from "../../src/domain/repositories/filaRepository";
 import MetodoPagamentoRepository from "../../src/domain/repositories/MetodoPagamentoRepository";
 import PedidoRepository from "../../src/domain/repositories/pedidoRepository";
@@ -976,5 +979,88 @@ describe("PedidoUseCase", () => {
 
     const pedidos = await PedidoUseCase.listaPedidos(pedidoRepositoryMock);
     expect(pedidos).toHaveLength(3);
+  });
+
+  it("Testa cancelar pedido", async () => {
+    const pedidoRepositoryMock: PedidoRepository = {
+      criaPedido: jest.fn().mockResolvedValue(null),
+      atualizaPedido: jest.fn().mockResolvedValue({
+        id: "1",
+        clienteId: "",
+        status: statusDoPedido.CANCELADO,
+        valor: 0,
+        itens: [
+          {
+            id: "4",
+            produtoId: "2",
+            pedidoId: "1",
+            quantidade: 2,
+            valorUnitario: 5,
+            valorTotal: 10,
+          },
+        ],
+        retiradoEm: null,
+        createdAt: Date,
+        deletedAt: null,
+        updatedAt: null,
+      }),
+      listaPedidos: jest.fn().mockResolvedValue(null),
+      retornaProximoPedidoFila: jest.fn().mockResolvedValue(null),
+      removeItem: jest.fn().mockResolvedValue(null),
+      atualizaStatusDoPedido: jest.fn().mockResolvedValue(null),
+      adicionaItem: jest.fn().mockResolvedValue(null),
+      retornaPedido: jest.fn().mockResolvedValue({
+        id: "1",
+        clienteId: "",
+        status: statusDoPedido.RASCUNHO,
+        valor: 0,
+        itens: [
+          {
+            id: "4",
+            produtoId: "2",
+            pedidoId: "1",
+            quantidade: 2,
+            valorUnitario: 5,
+            valorTotal: 10,
+          },
+        ],
+        retiradoEm: null,
+        createdAt: Date,
+        deletedAt: null,
+        updatedAt: null,
+      }),
+    };
+
+    const pedidoCancelado = await PedidoUseCase.cancelaPedido(
+      pedidoRepositoryMock,
+      {
+        pedidoId: "1",
+        clienteId: "1",
+      }
+    );
+
+    expect(pedidoCancelado?.status).toBe("Pedido cancelado");
+  });
+
+  it("Testa cancelar pedido nao encontrado", async () => {
+    const pedidoRepositoryMock: PedidoRepository = {
+      criaPedido: jest.fn().mockResolvedValue(null),
+      atualizaPedido: jest.fn().mockResolvedValue(null),
+      listaPedidos: jest.fn().mockResolvedValue(null),
+      retornaProximoPedidoFila: jest.fn().mockResolvedValue(null),
+      removeItem: jest.fn().mockResolvedValue(null),
+      atualizaStatusDoPedido: jest.fn().mockResolvedValue(null),
+      adicionaItem: jest.fn().mockResolvedValue(null),
+      retornaPedido: jest.fn().mockResolvedValue(null),
+    };
+
+    try {
+      await PedidoUseCase.cancelaPedido(pedidoRepositoryMock, {
+        pedidoId: "1",
+        clienteId: "1",
+      });
+    } catch (e: any) {
+      expect(e.message).toBe("Pedido nao encontrado");
+    }
   });
 });
