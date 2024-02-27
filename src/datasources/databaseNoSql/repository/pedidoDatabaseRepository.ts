@@ -3,7 +3,10 @@ import throwError from "handlerError/handlerError";
 import { v4 as uuidv4 } from "uuid";
 
 import { ItemDoPedidoDTO } from "~domain/entities/types/itensPedidoType";
-import { AdicionaItemInput, RemoveItemInput } from "~domain/entities/types/pedidoService.type";
+import {
+  AdicionaItemInput,
+  RemoveItemInput,
+} from "~domain/entities/types/pedidoService.type";
 import {
   PedidoDTO,
   StatusDoPedido,
@@ -12,7 +15,6 @@ import {
 import PedidoRepository from "~domain/repositories/pedidoRepository";
 
 import Pedido from "../models/pedidoModel";
-
 
 class PedidoDataBaseRepository implements PedidoRepository {
   async criaPedido(pedido: PedidoDTO): Promise<PedidoDTO> {
@@ -24,37 +26,49 @@ class PedidoDataBaseRepository implements PedidoRepository {
     id: string,
     statusDoPedido: StatusDoPedido
   ): Promise<PedidoDTO> {
-    const pedido = await Pedido.findOneAndUpdate({ id }, { status: statusDoPedido }, { returnNewDocument: true }).select('-_id -__v');
+    const pedido = await Pedido.findOneAndUpdate(
+      { id },
+      { status: statusDoPedido },
+      { returnNewDocument: true }
+    ).select("-_id -__v");
 
     return pedido as PedidoDTO;
-
   }
 
   async atualizaPedido(pedido: PedidoDTO): Promise<PedidoDTO> {
-    const pedidoAtualizado = await Pedido.findOneAndUpdate({ id: pedido.id },  pedido, { upsert: true, setDefaultsOnInsert: true, new: true }).select('-_id -__v');
+    const pedidoAtualizado = await Pedido.findOneAndUpdate(
+      { id: pedido.id },
+      pedido,
+      { upsert: true, setDefaultsOnInsert: true, new: true }
+    ).select("-_id -__v");
     return pedidoAtualizado as PedidoDTO;
-
   }
 
-  async retornaPedido(id: string, clienteId: string | null = null): Promise<PedidoDTO | null> {
+  async retornaPedido(
+    id: string,
+    clienteId: string | null = null
+  ): Promise<PedidoDTO | null> {
     const filter: {
-      id: string,
-      clientId?: string
+      id: string;
+      clientId?: string;
     } = {
-      id
-    }
+      id,
+    };
 
     if (clienteId) {
-      filter.clientId = clienteId
+      filter.clientId = clienteId;
     }
     return (await Pedido.findOne(filter)) as PedidoDTO;
   }
 
   async retornaProximoPedidoFila(): Promise<PedidoDTO | null> {
-    const proximoPedido = Pedido.findOne({status: statusDoPedido.AGUARDANDO_PREPARO}, {}, { sort: { 'createdAt': 1 } }).select('-_id -__v') as unknown as PedidoDTO;
+    const proximoPedido = Pedido.findOne(
+      { status: statusDoPedido.AGUARDANDO_PREPARO },
+      {},
+      { sort: { createdAt: 1 } }
+    ).select("-_id -__v") as unknown as PedidoDTO;
 
     return proximoPedido;
-
   }
 
   async adicionaItem(
@@ -63,10 +77,12 @@ class PedidoDataBaseRepository implements PedidoRepository {
     const novoItem: ItemDoPedidoDTO = {
       ...adicionaItem,
       id: uuidv4(),
-    }
-    const pedidoAtualizado = await Pedido.findOneAndUpdate({ id: adicionaItem.pedidoId },
-      { $push: { itens: novoItem }, },
-      { returnNewDocument: true }).select('-_id -__v');
+    };
+    const pedidoAtualizado = await Pedido.findOneAndUpdate(
+      { id: adicionaItem.pedidoId },
+      { $push: { itens: novoItem } },
+      { returnNewDocument: true }
+    ).select("-_id -__v");
 
     if (!pedidoAtualizado) throwError("NOT_FOUND", "Pedido não encontrado");
 
@@ -76,9 +92,11 @@ class PedidoDataBaseRepository implements PedidoRepository {
   async removeItem(
     removeItemInput: RemoveItemInput
   ): Promise<PedidoDTO | null> {
-    const pedidoItemRemovido = await Pedido.findOneAndUpdate({ id: removeItemInput.pedidoId },
-      { $pull: { itens: { id: removeItemInput.itemId } }, },
-      { returnNewDocument: true }).select('-_id -__v');
+    const pedidoItemRemovido = await Pedido.findOneAndUpdate(
+      { id: removeItemInput.pedidoId },
+      { $pull: { itens: { id: removeItemInput.itemId } } },
+      { returnNewDocument: true }
+    ).select("-_id -__v");
 
     if (!pedidoItemRemovido) throwError("NOT_FOUND", "Pedido não encontrado");
 
@@ -90,22 +108,21 @@ class PedidoDataBaseRepository implements PedidoRepository {
     clienteId?: string
   ): Promise<Array<PedidoDTO> | null> {
     const filter: {
-      status: { $in: any },
-      clientId?: string
+      status: { $in: any };
+      clientId?: string;
     } = {
-      status: status ? { $in: status} : {
-        $in: [
-          statusDoPedido.AGUARDANDO_PREPARO,
-        ]
-      }
-
-    }
+      status: status
+        ? { $in: status }
+        : {
+            $in: [statusDoPedido.AGUARDANDO_PREPARO],
+          },
+    };
 
     if (clienteId) {
       filter.clientId = clienteId;
     }
-    console.log(filter)
-    return await Pedido.find(filter).sort({ updateAt: 1 }).select('-_id -__v');
+    console.log(filter);
+    return await Pedido.find(filter).sort({ updateAt: 1 }).select("-_id -__v");
   }
 }
 

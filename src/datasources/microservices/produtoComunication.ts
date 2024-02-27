@@ -8,15 +8,18 @@ dotenv.config();
 
 const PRODUTO_MS_URL = process.env.PRODUTO_MS_URL as string;
 
-export default class ProdutoMicroserviceComunication implements ProdutoRepository {
+export default class ProdutoMicroserviceComunication
+  implements ProdutoRepository
+{
   async retornaProduto(idProduto: string): Promise<ProdutoDTO | null> {
     try {
-      const response = await fetch(`${PRODUTO_MS_URL}/produto/${idProduto}`);
+      const response = await fetch(`${PRODUTO_MS_URL}/api/produto/${idProduto}`);
 
       if (response.status === 200) {
         console.log("Pedido encontrado!");
 
-        return await response.json();
+        const result =  await response.json();
+        return result?.produto;
       }
 
       if (response.status === 404) {
@@ -24,12 +27,10 @@ export default class ProdutoMicroserviceComunication implements ProdutoRepositor
 
         return null;
       }
-
     } catch (err: unknown) {
       console.log(err);
     }
 
     throwError("BAD_REQUEST", "Nao foi possivel encontrar o produto!");
   }
-
 }

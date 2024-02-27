@@ -1,10 +1,16 @@
-import { PagamentoStatusUpdateBody, statusDePagamento } from "../../src/domain/entities/types/PagamentoType";
+import {
+  PagamentoStatusUpdateBody,
+  statusDePagamento,
+} from "../../src/domain/entities/types/PagamentoType";
 import { statusDoPedido } from "../../src/domain/entities/types/pedidoType";
+import FilaRepository from "../../src/domain/repositories/filaRepository";
 import PedidoRepository from "../../src/domain/repositories/pedidoRepository";
 import PagamentoUseCase from "../../src/domain/useCases/pagamentoUseCase";
 
-describe('PagamentoUseCase', () => {
+describe("PagamentoUseCase", () => {
   let pedidoRepositoryMock: PedidoRepository;
+  let filaRepository: FilaRepository;
+
   const createdAt = new Date();
 
   beforeEach(() => {
@@ -27,41 +33,61 @@ describe('PagamentoUseCase', () => {
         deletedAt: null,
         updatedAt: null,
       }),
-    }
-  })
+    };
+    filaRepository = {
+      enviaParaFila: jest.fn().mockResolvedValue(null),
+      recebeMensagem: jest.fn().mockResolvedValue(null),
+      deletaMensagemProcessada: jest.fn().mockResolvedValue(null),
+      enviaParaDLQ: jest.fn().mockResolvedValue(null),
+    };
+  });
 
-  it('Testa atualizar pagamento aprovado no Pedido', async () => {
+  it("Testa atualizar pagamento aprovado no Pedido", async () => {
     const pagamentoUpdate: PagamentoStatusUpdateBody = {
       pedidoId: "1",
       statusPagamento: statusDePagamento.PAGAMENTO_APROVADO,
-    }
+    };
 
-    const novoPedido = await PagamentoUseCase.atualizaPagamentoPedido(pedidoRepositoryMock, pagamentoUpdate)
+    const novoPedido = await PagamentoUseCase.atualizaPagamentoPedido(
+      filaRepository,
+      pedidoRepositoryMock,
+      pagamentoUpdate
+    );
     expect(novoPedido.status).toBe(statusDoPedido.AGUARDANDO_PREPARO);
   });
 
-  it('Testa atualizar pagamento reprovado no Pedido', async () => {
+  it("Testa atualizar pagamento reprovado no Pedido", async () => {
     const pagamentoUpdate: PagamentoStatusUpdateBody = {
       pedidoId: "1",
       statusPagamento: statusDePagamento.PAGAMENTO_NEGADO,
-    }
+    };
 
-    const novoPedido = await PagamentoUseCase.atualizaPagamentoPedido(pedidoRepositoryMock, pagamentoUpdate)
+    const novoPedido = await PagamentoUseCase.atualizaPagamentoPedido(
+      filaRepository,
+      pedidoRepositoryMock,
+      pagamentoUpdate
+    );
     expect(novoPedido.status).toBe(statusDoPedido.FALHA);
   });
 
-  it('Testa atualizar pagamento de um pedido que nao existe', async () => {
+  it("Testa atualizar pagamento de um pedido que nao existe", async () => {
     pedidoRepositoryMock.retornaPedido = jest.fn().mockResolvedValue(null);
-  
+
     const pagamentoUpdate: PagamentoStatusUpdateBody = {
       pedidoId: "1",
       statusPagamento: statusDePagamento.PAGAMENTO_APROVADO,
-    }
+    };
 
     try {
-      await PagamentoUseCase.atualizaPagamentoPedido(pedidoRepositoryMock, pagamentoUpdate)
+      await PagamentoUseCase.atualizaPagamentoPedido(
+        filaRepository,
+        pedidoRepositoryMock,
+        pagamentoUpdate
+      );
     } catch (e: any) {
-      expect(e.message).toBe(`Pedido ${pagamentoUpdate.pedidoId} nao encontrado`);
+      expect(e.message).toBe(
+        `Pedido ${pagamentoUpdate.pedidoId} nao encontrado`
+      );
     }
   });
 });

@@ -1,4 +1,3 @@
-
 export interface ItemDoPedidoInput {
   id?: string;
   clienteId?: string | null;
@@ -22,4 +21,4 @@ export interface ItemDoPedidoDTO {
   valorUnitario: number;
   valorTotal?: number;
   observacao?: string | null;
-} 
+}

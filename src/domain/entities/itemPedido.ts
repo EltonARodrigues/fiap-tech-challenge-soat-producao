@@ -12,31 +12,34 @@ export default class ItemPedido {
   public observacao: string | null;
   public createdAt: Date;
 
-  
-  
   constructor(itemPedido: ItemDoPedidoDTO) {
     this.id = itemPedido.id ?? uuidv4();
     this.produtoId = itemPedido.produtoId;
     this.quantidade = itemPedido.quantidade;
-    this.valorUnitario = this.validarValor(itemPedido.valorUnitario); 
+    this.valorUnitario = this.validarValor(itemPedido.valorUnitario);
     this.valorTotal = this.calculaTotal();
     this.observacao = itemPedido.observacao ?? null;
     this.createdAt = new Date();
 
-    if (this.quantidade <= 0){
-      throw new Error('Quantidade do item selecionado nao pode ser menor que 0')
+    if (this.quantidade <= 0) {
+      throw new Error(
+        "Quantidade do item selecionado nao pode ser menor que 0"
+      );
     }
   }
 
   validarValor(valorUnitario: number) {
     if (valorUnitario <= 0) {
-      throwError("BAD_REQUEST", 'Não é criar um item de valor unitario menor igual a 0');
+      throwError(
+        "BAD_REQUEST",
+        "Não é criar um item de valor unitario menor igual a 0"
+      );
     }
 
     return valorUnitario;
   }
 
-  calculaTotal(){
+  calculaTotal() {
     this.valorTotal = this.valorUnitario * this.quantidade;
     return this.valorTotal;
   }

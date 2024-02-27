@@ -5,13 +5,18 @@ import PedidoDataBaseRepository from "~datasources/databaseNoSql/repository/pedi
 import MetodoPagamentoMicroserviceComunication from "~datasources/microservices/pagamentoComunication";
 import ProdutoMicroserviceComunication from "~datasources/microservices/produtoComunication";
 import FilaService from "~datasources/queues/FilaService";
-import { StatusDoPedido,statusDoPedido } from "~domain/entities/types/pedidoType";
+import {
+  StatusDoPedido,
+  statusDoPedido,
+} from "~domain/entities/types/pedidoType";
 import { PedidoController } from "~interfaceAdapters/controllers/pedidoController";
 
 import {
   AdicionarItemBody,
   AdicionarItemParams,
   adicionarItemSchema,
+  DeletaPedidoQuery,
+  deletaPedidoSchema,
   EntregarPedidoParams,
   entregarPedidoSchema,
   FinalizarPreparoParams,
@@ -34,9 +39,9 @@ const pedidoRouter = express.Router({});
 
 const filaService = new FilaService();
 const produtoSourceRepository = new ProdutoMicroserviceComunication();
-const metodoPagamentoMicroserviceComunication = new MetodoPagamentoMicroserviceComunication();
+const metodoPagamentoMicroserviceComunication =
+  new MetodoPagamentoMicroserviceComunication();
 const dbPedidosRepository = new PedidoDataBaseRepository();
-
 
 /**
  * @openapi
@@ -58,12 +63,16 @@ const dbPedidosRepository = new PedidoDataBaseRepository();
 pedidoRouter.get(
   "/iniciar-pedido",
   validaRequisicao(iniciaPedidoSchema),
-  async (req: Request<unknown, IniciaPedidoPayload>, res: Response, next: NextFunction) => {
+  async (
+    req: Request<unknown, IniciaPedidoPayload>,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
-      const clienteId = '111' // TODO;
+      const clienteId = "111"; // TODO;
 
       if (!clienteId) {
-        throwError("NOT_FOUND","ClienteId Nao encontrado!");
+        throwError("NOT_FOUND", "ClienteId Nao encontrado!");
       }
 
       const pedidoCriado = await PedidoController.iniciaPedido(
@@ -125,11 +134,11 @@ pedidoRouter.post(
   async (
     req: Request<AdicionarItemParams, AdicionarItemBody>,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const { body, params } = req;
-      const { clienteId } = req
+      const { clienteId } = req;
 
       const pedido = await PedidoController.adicionaItem(
         dbPedidosRepository,
@@ -137,7 +146,7 @@ pedidoRouter.post(
         {
           ...body,
           pedidoId: params.id,
-          clienteId
+          clienteId,
         }
       );
 
@@ -185,20 +194,20 @@ pedidoRouter.post(
 pedidoRouter.delete(
   "/:id/remover-item/:idItem",
   validaRequisicao(removerItemSchema),
-  async (req: Request<RemoverItemParams>, res: Response, next: NextFunction) => {
+  async (
+    req: Request<RemoverItemParams>,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
       const { params } = req;
-      const { clienteId } = req
+      const { clienteId } = req;
 
-
-      const pedido = await PedidoController.removeItem(
-        dbPedidosRepository,
-        {
-          pedidoId: params.id,
-          itemId: params.idItem,
-          clienteId
-        }
-      );
+      const pedido = await PedidoController.removeItem(dbPedidosRepository, {
+        pedidoId: params.id,
+        itemId: params.idItem,
+        clienteId,
+      });
 
       return res.status(201).json({
         status: "success",
@@ -263,7 +272,7 @@ pedidoRouter.patch(
         {
           pedidoId: params.id,
           metodoDePagamentoId: body.metodoDePagamentoId,
-          clienteId
+          clienteId,
         }
       );
 
@@ -305,7 +314,11 @@ pedidoRouter.patch(
 pedidoRouter.patch(
   "/iniciar-preparo/",
   validaRequisicao(iniciarPreparoSchema),
-  async (req: Request<IniciarPreparoParams>, res: Response, next: NextFunction) => {
+  async (
+    req: Request<IniciarPreparoParams>,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
       const { pedidoId } = req.query;
 
@@ -359,7 +372,11 @@ pedidoRouter.patch(
 pedidoRouter.patch(
   "/finalizar-preparo/:id",
   validaRequisicao(finalizarPreparoSchema),
-  async (req: Request<FinalizarPreparoParams>, res: Response, next: NextFunction) => {
+  async (
+    req: Request<FinalizarPreparoParams>,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
       const { params } = req;
 
@@ -406,7 +423,11 @@ pedidoRouter.patch(
 pedidoRouter.patch(
   "/entregar-pedido/:id",
   validaRequisicao(entregarPedidoSchema),
-  async (req: Request<EntregarPedidoParams>, res: Response, next: NextFunction) => {
+  async (
+    req: Request<EntregarPedidoParams>,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
       const { params } = req;
 
@@ -460,7 +481,11 @@ pedidoRouter.patch(
 pedidoRouter.get(
   "/",
   validaRequisicao(listarPedidosSchema),
-  async (req: Request<unknown, unknown, ListaPedidosQuery>, res: Response, next: NextFunction) => {
+  async (
+    req: Request<unknown, unknown, ListaPedidosQuery>,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
       const { query } = req;
       const { clienteId } = req;
@@ -484,7 +509,7 @@ pedidoRouter.get(
         });
       }
 
-      const queryClienteId = query.clienteId as string ?? clienteId;
+      const queryClienteId = (query.clienteId as string) ?? clienteId;
       const pedidos = await PedidoController.listaPedidos(
         dbPedidosRepository,
         status,
@@ -497,6 +522,61 @@ pedidoRouter.get(
       });
     } catch (err: unknown) {
       console.log(`Erro ao buscar pedido: ${err}`);
+      return next(err);
+    }
+  }
+);
+
+/**
+ * @openapi
+ * /pedido/{id}:
+ *   delete:
+ *     summary: cancela um pedido
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Id do pedido
+ *     tags:
+ *       - pedido
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: produto cancelado.
+ *       404:
+ *         description: pedido ou produto nao encontrado.
+ *       500:
+ *         description: Erro na api.
+ */
+pedidoRouter.delete(
+  "/:id/",
+  validaRequisicao(deletaPedidoSchema),
+  async (
+    req: Request<DeletaPedidoQuery>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { params } = req;
+      const { clienteId } = req;
+
+      const pedido = await PedidoController.cancelaPedido(
+        dbPedidosRepository,
+        {
+          clienteId,
+          pedidoId: params.id
+        }
+      );
+
+      return res.status(200).json({
+        status: "success",
+        message: pedido,
+      });
+    } catch (err: unknown) {
+      console.log(`Erro ao cancelar pedido: ${err}`);
       return next(err);
     }
   }

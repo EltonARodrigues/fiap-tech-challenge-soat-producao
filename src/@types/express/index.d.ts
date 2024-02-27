@@ -1,12 +1,12 @@
 import { TipoUsuario } from "~domain/entities/types/authType";
 
-export {}
+export { };
 
 declare global {
   namespace Express {
     export interface Request {
-        tipoUsuario?: TipoUsuario
-        clienteId: string;
+      tipoUsuario?: TipoUsuario;
+      clienteId: string;
     }
   }
 }

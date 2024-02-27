@@ -1,4 +1,3 @@
-
 const mockFindOne = jest.fn();
 
 const mockMongoose = {

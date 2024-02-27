@@ -4,7 +4,6 @@ import { v4 as uuidv4 } from "uuid";
 import { ItemDoPedidoDTO } from "~domain/entities/types/itensPedidoType";
 import { PedidoDTO, statusDoPedido } from "~domain/entities/types/pedidoType";
 
-
 const ItemDoPedidoSchema = new mongoose.Schema<ItemDoPedidoDTO>({
   id: { type: String, required: true },
   produtoId: { type: String, required: true },
@@ -12,7 +11,6 @@ const ItemDoPedidoSchema = new mongoose.Schema<ItemDoPedidoDTO>({
   valorUnitario: { type: Number, required: true },
   valorTotal: { type: Number, required: true },
   observacao: { type: String, required: false },
-
 });
 
 const PedidoSchema = new mongoose.Schema<PedidoDTO>({
@@ -33,7 +31,7 @@ const PedidoSchema = new mongoose.Schema<PedidoDTO>({
     type: String,
     enum: Object.values(statusDoPedido),
     required: true,
-    default: statusDoPedido.RASCUNHO
+    default: statusDoPedido.RASCUNHO,
   },
 
   itens: {
@@ -60,6 +58,6 @@ const PedidoSchema = new mongoose.Schema<PedidoDTO>({
   },
 });
 
-const Pedido = mongoose.model('Pedido', PedidoSchema);
+const Pedido = mongoose.model("Pedido", PedidoSchema);
 
 export default Pedido;
