@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tech-challenge-produto-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: tech-challenge-produto
+  template:
+    metadata:
+      labels:
+        app: tech-challenge-produto
+    spec:
+      containers:
+        - name: tech-challenge-produto-container
+          image: eltonarodrigues/fiap-tech-challenge-soat-produto:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: DB_HOST
+              value: tech-challenge-db-produto-svc
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: fiap-tech-secrets-produto
+                  key: db_name
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: fiap-tech-secrets-produto
+                  key: db_username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fiap-tech-secrets-produto
+                  key: db_password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tech-challenge-produto-svc
+spec:
+  # type: NodePort
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 3000
+      nodePort: 30083
+  selector:
+    app: tech-challenge-produto

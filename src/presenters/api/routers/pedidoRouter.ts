@@ -564,6 +564,7 @@ pedidoRouter.delete(
       const { clienteId } = req;
 
       const pedido = await PedidoController.cancelaPedido(
+        filaService,
         dbPedidosRepository,
         {
           clienteId,

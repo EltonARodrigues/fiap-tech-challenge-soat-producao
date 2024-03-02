@@ -1032,6 +1032,7 @@ describe("PedidoUseCase", () => {
     };
 
     const pedidoCancelado = await PedidoUseCase.cancelaPedido(
+      filaRepository,
       pedidoRepositoryMock,
       {
         pedidoId: "1",
@@ -1055,7 +1056,7 @@ describe("PedidoUseCase", () => {
     };
 
     try {
-      await PedidoUseCase.cancelaPedido(pedidoRepositoryMock, {
+      await PedidoUseCase.cancelaPedido(filaRepository, pedidoRepositoryMock, {
         pedidoId: "1",
         clienteId: "1",
       });

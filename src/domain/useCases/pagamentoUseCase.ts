@@ -46,11 +46,15 @@ export default class PagamentoUseCase {
     const pedidoEmProducao =
       pedido.status === statusDoPedido.AGUARDANDO_PREPARO;
 
-    await filaRepository.enviaParaFila<NotificationBody>({
-      sub: pedido.clienteId,
-      pedidoId: pedido.id,
-      pedidoEmProducao
-    }, FILA_NOTIFICACAO);
+    try {
+      await filaRepository.enviaParaFila<NotificationBody>({
+        sub: pedido.clienteId,
+        pedidoId: pedido.id,
+        pedidoEmProducao
+      }, FILA_NOTIFICACAO);
+    } catch(err) {
+      console.log(`Error to send notification to queue ${FILA_NOTIFICACAO}}: ${err}`)
+    }
 
     return pedido.toObject();
   }

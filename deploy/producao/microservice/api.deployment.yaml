@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tech-challenge-producao-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: tech-challenge-producao
+  template:
+    metadata:
+      labels:
+        app: tech-challenge-producao
+    spec:
+      containers:
+        - name: tech-challenge-producao-container
+          image: eltonarodrigues/fiap-tech-challenge-soat-producao:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: DB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: fiap-tech-secrets-producao
+                  key: db_uri
+            - name: PRODUTO_MS_URL
+              value: "http://tech-challenge-produto-svc"
+            - name: PAGAMENTO_MS_URL
+              value: "http://tech-challenge-pagamento-svc"
+            - name: FILA_PAGAMENTO_URL
+              valueFrom:
+                secretKeyRef:
+                  name: fiap-tech-secrets-producao
+                  key: fila_pagamento_url
+            - name: FILA_PAGAMENTO_DLQ_URL
+              valueFrom:
+                secretKeyRef:
+                  name: fiap-tech-secrets-producao
+                  key: fila_pagamento_dlq_url
+            - name: FILA_ENVIO_PAGAMENTO
+              valueFrom:
+                secretKeyRef:
+                  name: fiap-tech-secrets-producao
+                  key: fila_envio_pagamento
+            - name: FILA_NOTIFICACAO
+              valueFrom:
+                secretKeyRef:
+                  name: fiap-tech-secrets-producao
+                  key: fila_notificacao
+            - name: AWS_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: fiap-tech-secrets-producao
+                  key: aws_region
+            - name: AWS_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: fiap-tech-secrets-producao
+                  key: aws_access_key
+            - name: AWS_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: fiap-tech-secrets-producao
+                  key: aws_secret_key
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tech-challenge-producao-svc
+spec:
+  # type: NodePort
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 3000
+      nodePort: 30081
+  selector:
+    app: tech-challenge-producao
