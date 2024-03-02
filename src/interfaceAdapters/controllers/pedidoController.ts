@@ -17,11 +17,13 @@ import PedidoUseCase from "~domain/useCases/pedidoUseCase";
 
 export class PedidoController {
   static async cancelaPedido(
+    filaRepository: FilaRepository,
     pedidoRepository: PedidoRepository,
     pedidoUsuarioInput: PedidoUsuario
   ): Promise<PedidoDTO | null> {
 
     const pedidoCancelado = await PedidoUseCase.cancelaPedido(
+      filaRepository,
       pedidoRepository,
       pedidoUsuarioInput
     );

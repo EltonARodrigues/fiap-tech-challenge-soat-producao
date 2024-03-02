@@ -15,7 +15,8 @@ import {
 import FilaRepository from "~domain/repositories/filaRepository";
 import MetodoPagamentoRepository from "~domain/repositories/MetodoPagamentoRepository";
 import PedidoRepository, {
-  SendPaymentQueueBody,
+  EnviaCancelamentoPagamento,
+  EnviaParaPagamento,
 } from "~domain/repositories/pedidoRepository";
 import ProdutoRepository from "~domain/repositories/produtoRepository";
 
@@ -42,6 +43,7 @@ export default class PedidoUseCase {
   }
 
   static async cancelaPedido(
+    filaRepository: FilaRepository,
     pedidoRepository: PedidoRepository,
     pedidoUsuarioInput: PedidoUsuario
   ) {
@@ -61,6 +63,15 @@ export default class PedidoUseCase {
     const pedidoCancelado = new Pedido(
       await pedidoRepository.atualizaPedido(pedido.toObject()),
       itensAtuais
+    );
+
+    const cancelamentoPagamento: EnviaCancelamentoPagamento = {
+      pedidoId: pedido.id,
+    };
+
+    await filaRepository.enviaParaFila<EnviaCancelamentoPagamento>(
+      cancelamentoPagamento,
+      process.env.FILA_CANCELAMENTO_PAGAMENTO as string
     );
 
     return pedidoCancelado;
@@ -105,13 +116,13 @@ export default class PedidoUseCase {
       itensAtuais
     );
 
-    const pagamentoBody: SendPaymentQueueBody = {
+    const pagamentoBody: EnviaParaPagamento = {
       pedidoId: pedidoFechado.id,
       metodoDePagamento: realizaPedidoInput.metodoDePagamentoId,
       valor: pedidoFechado.valor,
     };
 
-    filaRepository.enviaParaFila<SendPaymentQueueBody>(
+    filaRepository.enviaParaFila<EnviaParaPagamento>(
       pagamentoBody,
       process.env.FILA_ENVIO_PAGAMENTO as string
     );

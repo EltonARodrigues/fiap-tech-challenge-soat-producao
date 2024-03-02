@@ -19,10 +19,14 @@ export type RetornaItemInput = {
   id: string;
 };
 
-export interface SendPaymentQueueBody {
+export interface EnviaParaPagamento {
   pedidoId: string;
   metodoDePagamento: string;
   valor: number;
+}
+
+export interface EnviaCancelamentoPagamento {
+  pedidoId: string;
 }
 
 export default interface PedidoRepository {
