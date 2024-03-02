@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tech-challenge-pagamento-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: tech-challenge-pagamento
+  template:
+    metadata:
+      labels:
+        app: tech-challenge-pagamento
+    spec:
+      containers:
+        - name: tech-challenge-pagamento-container
+          image: eltonarodrigues/fiap-tech-challenge-soat-pagamento:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: MONGODB_CONNECTIONSTRING
+              valueFrom:
+                secretKeyRef:
+                  name: fiap-tech-secrets-pagamento
+                  key: db_uri
+            - name: MONGODB_DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: fiap-tech-secrets-pagamento
+                  key: db_name
+            - name: FILA_PAGAMENTO_DLQ_URL
+              valueFrom:
+                secretKeyRef:
+                  name: fiap-tech-secrets-pagamento
+                  key: fila_pagamento_dlq_url
+            - name: FILA_ENVIO_PAGAMENTO
+              valueFrom:
+                secretKeyRef:
+                  name: fiap-tech-secrets-pagamento
+                  key: fila_envio_pagamento
+            - name: FILA_ENVIO_COBRANCA
+              valueFrom:
+                secretKeyRef:
+                  name: fiap-tech-secrets-pagamento
+                  key: fila_envio_cobranca
+            - name: FILA_PEDIDO_PAGO
+              valueFrom:
+                secretKeyRef:
+                  name: fiap-tech-secrets-pagamento
+                  key: fila_envio_pedido
+            - name: AWS_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: fiap-tech-secrets-pagamento
+                  key: aws_region
+            - name: AWS_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: fiap-tech-secrets-pagamento
+                  key: aws_access_key
+            - name: AWS_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: fiap-tech-secrets-pagamento
+                  key: aws_secret_key
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tech-challenge-pagamento-svc
+spec:
+  # type: NodePort
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 3000
+      nodePort: 30082
+  selector:
+    app: tech-challenge-pagamento
