@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sqs-config
+data:
+  pedido-pago: |
+    VisibilityTimeout: "60"
+  pedido-pago-dlq: |
+    VisibilityTimeout: "60"
+  pagamento-queue: |
+    VisibilityTimeout: "60"
+  notification_queue: |
+    VisibilityTimeout: "60"
+  cancelamento_queue: |
+    VisibilityTimeout: "60"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: localstack
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: localstack
+  template:
+    metadata:
+      labels:
+        app: localstack
+    spec:
+      initContainers:
+      - name: create-sqs-queues
+        image: amazon/aws-cli
+        command: ["/bin/sh", "-c", "aws --endpoint-url=http://localstack:4566 sqs create-queue --queue-name $QUEUE_NAME --attributes file:///etc/sqs/$QUEUE_NAME.yaml"]
+        volumeMounts:
+        - name: sqs-config-volume
+          mountPath: /etc/sqs
+        env:
+        - name: QUEUE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+      containers:
+      - name: localstack
+        image: localstack/localstack
+        ports:
+        - containerPort: 4566 # SQS port
+        - containerPort: 4576 # S3 port
+        - containerPort: 8080 # LocalStack dashboard port
+        env:
+        - name: DEFAULT_REGION
+          value: us-east-1
+        # You can add more environment variables for LocalStack configuration
+      volumes:
+      - name: sqs-config-volume
+        configMap:
+          name: sqs-config

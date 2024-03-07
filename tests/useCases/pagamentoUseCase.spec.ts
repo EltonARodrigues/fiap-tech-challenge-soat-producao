@@ -45,7 +45,7 @@ describe("PagamentoUseCase", () => {
   it("Testa atualizar pagamento aprovado no Pedido", async () => {
     const pagamentoUpdate: PagamentoStatusUpdateBody = {
       pedidoId: "1",
-      statusPagamento: statusDePagamento.PAGAMENTO_APROVADO,
+      statusPagamento: statusDePagamento.PAGAMENTO_CONCLUIDO,
     };
 
     const novoPedido = await PagamentoUseCase.atualizaPagamentoPedido(
@@ -59,7 +59,7 @@ describe("PagamentoUseCase", () => {
   it("Testa atualizar pagamento reprovado no Pedido", async () => {
     const pagamentoUpdate: PagamentoStatusUpdateBody = {
       pedidoId: "1",
-      statusPagamento: statusDePagamento.PAGAMENTO_NEGADO,
+      statusPagamento: statusDePagamento.FALHA,
     };
 
     const novoPedido = await PagamentoUseCase.atualizaPagamentoPedido(
@@ -75,7 +75,7 @@ describe("PagamentoUseCase", () => {
 
     const pagamentoUpdate: PagamentoStatusUpdateBody = {
       pedidoId: "1",
-      statusPagamento: statusDePagamento.PAGAMENTO_APROVADO,
+      statusPagamento: statusDePagamento.PAGAMENTO_CONCLUIDO,
     };
 
     try {

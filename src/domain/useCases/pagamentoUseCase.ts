@@ -38,9 +38,9 @@ export default class PagamentoUseCase {
       (item) => new ItemPedido(item)
     );
     const pedido = new Pedido(pedidoRetornado, itensAtuais);
-
+    console.log(pagamentoUpdate)
     pedido.atualizaPagamento(pagamentoUpdate.statusPagamento);
-
+    console.log(pedido)
     await pedidoRepository.atualizaPedido(pedido);
 
     const pedidoEmProducao =

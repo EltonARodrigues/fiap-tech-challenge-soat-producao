@@ -160,7 +160,7 @@ describe("Pedido", () => {
     pedido.adicionarItem(item);
 
     pedido.cancela();
-    expect(pedido.status).toBe(statusDoPedido.CANCELADO);
+    expect(pedido.status).toBe(statusDoPedido.CANCELADO_PROCESSAMENTO);
   });
 
   it("Teste finalizar criacao do pedido com status Errado -> AGUARDANDO_PAGAMENTO", async () => {
@@ -201,7 +201,7 @@ describe("Pedido", () => {
 
     pedido.status = statusDoPedido.AGUARDANDO_PAGAMENTO;
 
-    pedido.atualizaPagamento(statusDePagamento.PAGAMENTO_APROVADO);
+    pedido.atualizaPagamento(statusDePagamento.PAGAMENTO_CONCLUIDO);
     expect(pedido.status).toBe(statusDoPedido.AGUARDANDO_PREPARO);
   });
 
@@ -220,7 +220,7 @@ describe("Pedido", () => {
 
     pedido.status = statusDoPedido.AGUARDANDO_PAGAMENTO;
 
-    pedido.atualizaPagamento(statusDePagamento.PAGAMENTO_NEGADO);
+    pedido.atualizaPagamento(statusDePagamento.FALHA);
     expect(pedido.status).toBe(statusDoPedido.FALHA);
   });
 
@@ -240,7 +240,7 @@ describe("Pedido", () => {
     pedido.status = statusDoPedido.RASCUNHO;
 
     try {
-      pedido.atualizaPagamento(statusDePagamento.PAGAMENTO_APROVADO);
+      pedido.atualizaPagamento(statusDePagamento.PAGAMENTO_CONCLUIDO);
     } catch (e: any) {
       expect(e.message).toBe(
         "Só é permitido alterar o status do pedido quando o status é Aguardando pagamento. Status Atual: Rascunho"

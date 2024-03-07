@@ -457,7 +457,7 @@ pedidoRouter.patch(
  *         name: status
  *         schema:
  *           type: string
- *           enum: [Rascunho,Aguardando pagamento,Falha em gerar pedido,Aguardando preparo,Em preparo,Pronto,Entregue]
+ *           enum: [Rascunho,Aguardando pagamento,Aguardando cancelamento pagamento, Falha em gerar pedido, Pedido cancelado, Aguardando preparo,Em preparo,Pronto,Entregue]
  *         required: false
  *         description: Status do pedido que deseja filtrar
  *       - in: query

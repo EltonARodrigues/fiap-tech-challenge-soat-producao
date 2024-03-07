@@ -168,7 +168,7 @@ Given("que exite um pedido na fila de preparo", async function () {
   const pedidoRepository = new PedidoDataBaseRepository();
   await PagamentoUseCase.atualizaPagamentoPedido(pedidoRepository, {
     pedidoId,
-    statusPagamento: statusDePagamento.PAGAMENTO_APROVADO,
+    statusPagamento: statusDePagamento.PAGAMENTO_CONCLUIDO,
   });
 
   mongoose.connection.close();

@@ -54,19 +54,25 @@ export default class Pedido {
   }
 
   atualizaPagamento(statusPagamento: StatusDePagamento) {
-    if (this.status !== statusDePagamento.AGUARDANDO_PAGAMENTO) {
+    if (this.status !== statusDePagamento.AGUARDANDO_PAGAMENTO && this.status !== statusDoPedido.CANCELADO_PROCESSAMENTO) {
       throwError(
         "BAD_REQUEST",
         `Só é permitido alterar o status do pedido quando o status é ${statusDoPedido.AGUARDANDO_PAGAMENTO}. Status Atual: ${this.status}`
       );
     }
 
-    if (statusPagamento !== statusDePagamento.AGUARDANDO_PAGAMENTO) {
-      this.updatedAt = new Date();
-      this.status =
-        statusPagamento === statusDePagamento.PAGAMENTO_APROVADO
-          ? statusDoPedido.AGUARDANDO_PREPARO
-          : statusDoPedido.FALHA;
+    this.updatedAt = new Date();
+    console.log(statusPagamento)
+    if (statusPagamento === statusDePagamento.PAGAMENTO_CONCLUIDO) {
+      this.status = statusDoPedido.AGUARDANDO_PREPARO;
+    }
+
+    if (statusPagamento === statusDePagamento.FALHA) {
+      this.status = statusDoPedido.FALHA;
+    }
+
+    if (statusPagamento === statusDePagamento.PAGAMENTO_ESTORNADO) {
+      this.status = statusDoPedido.CANCELADO;
     }
   }
 
@@ -93,14 +99,14 @@ export default class Pedido {
   }
 
   cancela() {
-    if (this.status !== statusDoPedido.RASCUNHO && this.status !== statusDoPedido.FALHA) {
+    if (this.status !== statusDoPedido.RASCUNHO && this.status !== statusDoPedido.FALHA && this.status !== statusDoPedido.AGUARDANDO_PAGAMENTO) {
       throwError(
         "BAD_REQUEST",
-        `Não é possível alterar o status para ${statusDoPedido.CANCELADO}. Status atual do pedido é ${this.status}`
+        `Não é possível alterar o status para ${statusDoPedido.CANCELADO_PROCESSAMENTO}. Status atual do pedido é ${this.status}`
       );
     }
     this.updatedAt = new Date();
-    this.status = statusDoPedido.CANCELADO;
+    this.status = statusDoPedido.CANCELADO_PROCESSAMENTO;
   }
 
 

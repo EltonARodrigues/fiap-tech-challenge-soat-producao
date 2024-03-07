@@ -16,6 +16,7 @@ export const statusDoPedido = {
   AGUARDANDO_PAGAMENTO: "Aguardando pagamento",
   FALHA: "Falha em gerar pedido",
   CANCELADO: "Pedido cancelado",
+  CANCELADO_PROCESSAMENTO: "Aguardando cancelamento pagamento",
   AGUARDANDO_PREPARO: "Aguardando preparo",
   EM_PREPARO: "Em preparo",
   PRONTO: "Pronto",
