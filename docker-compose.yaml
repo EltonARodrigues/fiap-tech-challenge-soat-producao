@@ -1,21 +1,47 @@
-version: "3.4"
+version: '3.8'
 
 services:
-  app:
-    build: .
-    container_name: fiap-soat-project_project_api
-    environment:
-      - DB_HOST=db
-      - DB_USERNAME=user_tech
-      - DB_PASSWORD=testtest
-      - DB_NAME=fiap-soat-project_db
+  localstack:
+    image: localstack/localstack
     ports:
-      - "3000:3000"
-    depends_on:
-      - db
+      - "127.0.0.1:4566:4566"
+      - "127.0.0.1:4510-4559:4510-4559"
     networks:
-      - fiap-project-network
-  db:
+      - localstack-network
+    environment:
+      - SERVICES=sqs
+      - DEFAULT_REGION=us-east-1
+      - DATA_DIR=/tmp/localstack/data
+
+  sqs-setup:
+    image: localstack/localstack
+    entrypoint: /bin/bash
+    depends_on:
+      - localstack
+    environment:
+      - AWS_DEFAULT_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+    networks:
+     - localstack-network
+    command: 
+      - "-c"
+      - |
+        aws --endpoint-url=http://localstack:4566 sqs create-queue --queue-name pedido-pago
+        aws --endpoint-url=http://localstack:4566 sqs create-queue --queue-name pedido-pago-dlq
+        aws --endpoint-url=http://localstack:4566 sqs create-queue --queue-name pagamento-queue
+        aws --endpoint-url=http://localstack:4566 sqs create-queue --queue-name cobranca-queue
+        aws --endpoint-url=http://localstack:4566 sqs create-queue --queue-name notification_queue
+        aws --endpoint-url=http://localstack:4566 sqs create-queue --queue-name cancelamento_queue
+        aws --endpoint-url=http://localstack:4566 sqs create-queue --queue-name atualiza_pagamento
+  mongo:
+      image: mongo
+      environment:
+        MONGO_INITDB_ROOT_USERNAME: root
+        MONGO_INITDB_ROOT_PASSWORD: MongoDB2019!
+      ports:
+        - "27017:27017"
+  mysql:
     image: mysql
     container_name: fiap-soat-project_db
     environment:
@@ -25,12 +51,10 @@ services:
       - "3306:3306"
     volumes:
       - db:/var/lib/mysql
-    networks:
-      - fiap-project-network
 
 volumes:
-  db:
+   db:
 
 networks:
-  fiap-project-network:
+  localstack-network:
     driver: bridge

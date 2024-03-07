@@ -1,8 +1,8 @@
 export const statusDePagamento = {
-  AGUARDANDO_PAGAMENTO: "Aguardando pagamento",
-  ERRO_AO_PROCESSAR_PAGAMENTO: "Erro ao processar pagamento",
-  PAGAMENTO_APROVADO: "Pagamento aprovado",
-  PAGAMENTO_NEGADO: "Pagamento negado",
+  AGUARDANDO_PAGAMENTO:  "Aguardando pagamento",
+  FALHA:  "Falha no processo de pagamento",
+  PAGAMENTO_CONCLUIDO:  "Pagamento concluído",
+  PAGAMENTO_ESTORNADO:  "Pagamento estornado"
 } as const;
 
 export type StatusDePagamento =
