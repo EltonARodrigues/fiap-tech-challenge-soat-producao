@@ -5,9 +5,7 @@ on:
   push:
     branches:
       - main
-  pull_request: # TODO
-    branches:
-      - main
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -67,3 +65,39 @@ jobs:
           docker build -t $ECR_REGISTRY/${{secrets.ECR_REPOSITORY}}:$IMAGE_TAG .
           docker push $ECR_REGISTRY/${{secrets.ECR_REPOSITORY}}:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/${{secrets.ECR_REPOSITORY}}:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+      # - name: Update ECS TASK Definition
+      #   env: 
+      #     AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      #     AWS_ECS_ROLE: ${{ secrets.AWS_ECS_ROLE }}
+      #     TASK_NAME: ${{ secrets.TASK_NAME }}
+      #   run: |
+      #     sed -e "s/\${TASK_NAME}/${TASK_NAME}/g" -e "s/\${AWS_ACCOUNT_ID}/${AWS_ACCOUNT_ID}/g" -e "s/\${AWS_ECS_ROLE}/${AWS_ECS_ROLE}/g" ecs/task-definition-template.json > ecs/task-definition.json
+
+      # - name: Fill in the new image ID in the Amazon ECS task definition
+      #   id: task-def
+      #   uses: aws-actions/amazon-ecs-render-task-definition@v1
+      #   with:
+      #     task-definition: ecs/task-definition.json
+      #     container-name: ${{ secrets.TASK_NAME }}
+      #     image: ${{ steps.login-ecr.outputs.registry }}/${{secrets.ECR_REPOSITORY}}:latest
+      #     environment-variables: |
+      #         NODE_ENV=${{ secrets.NODE_ENV }}
+      #         DB_URI=${{ secrets.DB_URI }}
+      #         PRODUTO_MS_URL=${{ secrets.PRODUTO_MS_URL }}
+      #         FILA_PAGAMENTO_URL=${{ secrets.FILA_PAGAMENTO_URL }}
+      #         AWS_REGION=${{ secrets.AWS_REGION }}
+      #         AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}
+      #         AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}
+      #         FILA_ENVIO_PAGAMENTO=${{ secrets.FILA_ENVIO_PAGAMENTO }}
+
+      # - name: Deploy Amazon ECS task definition
+      #   uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      #   with:
+      #     force-new-deployment: true
+      #     task-definition: ${{ steps.task-def.outputs.task-definition }}
+      #     cluster: ${{ secrets.ECS_CLUESTER }}
+
+      - name: Force deployment
+        run: |
+          aws ecs update-service --cluster ${{secrets.ECS_CLUESTER}} --service pedido --force-new-deployment
