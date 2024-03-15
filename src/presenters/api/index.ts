@@ -1,4 +1,5 @@
 import express, { Express } from "express";
+import helmet from "helmet";
 import swaggerUi from "swagger-ui-express";
 
 import { Server } from "./config/server.config";
@@ -11,6 +12,9 @@ export default class API {
 
   constructor() {
     this.app = express();
+
+    this.app.use(helmet());
+
     this.app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
     this.server = new Server({ appConfig: this.app });
