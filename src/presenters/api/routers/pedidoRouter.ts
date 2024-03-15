@@ -1,5 +1,6 @@
 import express, { NextFunction, Request, Response } from "express";
 import throwError from "handlerError/handlerError";
+import getClientId from "presenters/api/middleware/getClientId";
 
 import PedidoDataBaseRepository from "~datasources/databaseNoSql/repository/pedidoDatabaseRepository";
 import MetodoPagamentoMicroserviceComunication from "~datasources/microservices/pagamentoComunication";
@@ -69,8 +70,8 @@ pedidoRouter.get(
     next: NextFunction
   ) => {
     try {
-      console.log(JSON.stringify(req.headers))
-      const clienteId = "111"; // TODO;
+      const { authorization } = req.headers;
+      const clienteId = getClientId(authorization as string);
       if (!clienteId) {
         throwError("NOT_FOUND", "ClienteId Nao encontrado!");
       }
@@ -138,7 +139,8 @@ pedidoRouter.post(
   ) => {
     try {
       const { body, params } = req;
-      const { clienteId } = req;
+      const { authorization } = req.headers;
+      const clienteId = getClientId(authorization as string);
 
       const pedido = await PedidoController.adicionaItem(
         dbPedidosRepository,
@@ -201,7 +203,8 @@ pedidoRouter.delete(
   ) => {
     try {
       const { params } = req;
-      const { clienteId } = req;
+      const { authorization } = req.headers;
+      const clienteId = getClientId(authorization as string);
 
       const pedido = await PedidoController.removeItem(dbPedidosRepository, {
         pedidoId: params.id,
@@ -263,7 +266,8 @@ pedidoRouter.patch(
   ) => {
     try {
       const { params, body } = req;
-      const { clienteId } = req;
+      const { authorization } = req.headers;
+      const clienteId = getClientId(authorization as string);
 
       const pedidoCriado = await PedidoController.realizaPedido(
         metodoPagamentoMicroserviceComunication,
