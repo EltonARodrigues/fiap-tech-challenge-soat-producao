@@ -52,6 +52,11 @@ Fluxo da realizacao de um pedido:
 
 ![Desenho do caminho da realizacao de um pedido](docs/saga/etapas_pedido_fase.png)
 
+### Relatórios OWASP ZAP
+Disponibilizado em formato html:
+-  [Relatório Inicial](docs/owasp/producao_antes.html)
+-  [Relatório Corrigido](docs/owasp/producao_depois.html)
+
 ## Stack utilizada
 
 - Node.js v20
