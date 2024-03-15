@@ -69,8 +69,8 @@ pedidoRouter.get(
     next: NextFunction
   ) => {
     try {
+      console.log(JSON.stringify(req.headers))
       const clienteId = "111"; // TODO;
-
       if (!clienteId) {
         throwError("NOT_FOUND", "ClienteId Nao encontrado!");
       }
