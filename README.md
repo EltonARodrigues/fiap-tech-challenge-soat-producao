@@ -1,6 +1,6 @@
 # Tech Challenge - Pós-Tech SOAT - FIAP - Microservico Produto
 
-Este é o projeto desenvolvido durante a fase 4 do curso de pós-graduação em arquitetura de software da FIAP - turma II/2023.
+Este é o projeto desenvolvido durante a fase 5 do curso de pós-graduação em arquitetura de software da FIAP - turma II/2023.
 
 Membros do grupo 30:
 Diórgenes Eugênio da Silveira - RM 349116
@@ -10,14 +10,52 @@ Juliana Amoasei dos Reis - RM 348666
 
 ## Repositórios
 
-### Changelog Fase IV:
+- [Infraestrutura](https://github.com/diorgeneseugenio/fiap-tech-challenge-soat-terraform)
+- [Producao](https://github.com/EltonARodrigues/fiap-tech-challenge-soat-producao)
+- [Produto](https://github.com/gabrielmendessilva/fiap-tech-challenge-soat-ms-produto)
+- [Pagamento](https://github.com/JulianaAmoasei/fiap-tech-challenge-ms-pagamento/tree/main)
+- [Autorizacao](https://github.com/JulianaAmoasei/fiap-auth-service-cognito)
 
-- **Microservico Pedido**: Separacao da funcionalidade de pedido em um microservico isolado;
-- **NoSQS** Utilizando bando de dados apartado para o microservico e migrado para banco NoSQS(Mongodb/DocumentDB)
-- **Unit Test** adicionado e refatorado os testes;
-- **BDD** Utilizando CUCUMBER para criar testes de BDD;
-- **Refatoração do sistema de infraestrutura** com provisionamento de recursos e implantação automatizados via ECS e Terraform;
-- **Gerenciamento de deploy** automatizado via GitHub Actions.
+### Changelog Fase V:
+
+- **SAGA Coreografada**: Ajustado o projeto para seguir o padrao SAGA do tipo coreografado em todos os Microservicos;
+- **LGPD Remocao**: Adicionado API para requisitar a exclusao dos dados pessoais;
+- **LGPD Relatorio de impacto**: Adicionado API para relatorio de impacto dos dados pessoais;
+- **Refatoração do sistema de infraestrutura** Atualizacoes no deploy AWS e execucao no eks para testes locais;
+
+## SAGA Coreografia
+
+Durante a fase 4 do projeto a separacao do monolito em microservicos seguiu o principio de desacoplamento, permitindo a melhor divisao das tarefas entre os integrantes. Ao avaliar a utilizacao de um orquestrador como SAGA observamos que essa decisão implicaria em um extenso trabalho de refatoração nos microsserviços existentes, mesmo que eles já estejam desacoplados.
+
+### Vantagens Coreografia
+Algumas vantagens da Coreografia lenvando em contexto a evolucao e desenvolvimento do nosso projeto durante as fases:
+
+- **Implementação rápida:** A coreografia é mais rápida de implementar, especialmente com um número reduzido de microsserviços e da forma que a separacao seguiu na fase 4.
+- **Simplicidade:** Não há necessidade de criar um novo serviço de orquestração, simplificando a arquitetura.
+- **Menos etapas:** O fluxo de comunicação é mais direto, envolvendo apenas o microsserviço de pedido/pagamento e a etapa de pagamento.
+
+### Revisão e Criação de Filas:
+
+Para implementar a coreografia, as filas foram revisadas e criadas utilizando o AWS SQS como sistema de mensageria. O processamento das transações internas dos microsserviços também foi revisado e corrigido para evitar que falhas de processamento afetem o fluxo do pedido.
+
+### Resultado:
+
+A coreografia parece ser a opção mais adequada para a fase 5 devido à sua simplicidade, rapidez de implementação e menor quantidade de etapas a serem gerenciadas. 
+
+Estrutura da SAGA Coreografada no projeto:
+
+![Desenho SAGA Coreagrafada do projeto](docs/saga/saga_1.png)
+Distribuicao dos microservicos:
+
+![Desenho da organizacao dos microservicos](docs/saga/organizacao_ms.png)
+Fluxo da realizacao de um pedido:
+
+![Desenho do caminho da realizacao de um pedido](docs/saga/etapas_pedido_fase.png)
+
+### Relatórios OWASP ZAP
+Disponibilizado em formato html:
+-  [Relatório Inicial](docs/owasp/producao_antes.html)
+-  [Relatório Corrigido](docs/owasp/producao_depois.html)
 
 ## Stack utilizada
 
@@ -29,7 +67,35 @@ Juliana Amoasei dos Reis - RM 348666
 - Docker
 - AWS
   - DocumentDB
+  - RDS
   - ECS
+  - ECR
+  - SQS
+  - API GATEWAY
+  - LOAD BALANCE
+
+
+## DEPLOY
+### Deploy AWS
+
+O projeto é baseado na infraestrutura da AWS, o que requer o provisionamento de recursos e a configuração do deploy. As etapas incluem:
+
+Utilização do repositório de [infraestrutura](https://github.com/diorgeneseugenio/fiap-tech-challenge-soat-terraform) para realizar o deploy do Terraform na AWS.
+
+Após o provisionamento, é necessário configurar os secrets no github Action de cada repositório de microserviço. Isso permite que a cada merge na branch main seja realizado o build, push da imagem no RDS e deploy no ECS. Os procedimentos devem ser executados nos seguintes repositórios:
+- [Producao](https://github.com/EltonARodrigues/fiap-tech-challenge-soat-producao)
+- [Produto](https://github.com/gabrielmendessilva/fiap-tech-challenge-soat-ms-produto)
+- [Pagamento](https://github.com/JulianaAmoasei/fiap-tech-challenge-ms-pagamento/tree/main)
+- [Autorizacao](https://github.com/JulianaAmoasei/fiap-auth-service-cognito)
+
+Por fim, dentro do API Gateway criado pelo Terraform, é necessário adicionar a autorização lambda nos endpoints dos microserviços.
+
+### EKS Local
+Para o deploy local utilize o repositorio de infra seguindo os passos do EKS + localstack no README.
+
+### Desenvolvimento Localhost
+
+Execute o microservico com o npm e o docker-compose.yml com o localstack + banco de dados para utilizar no desenvolvimento
 
 ### Teste Unitario
 
@@ -46,25 +112,6 @@ Para os testes de BDD o projeto está utilizando o cucumber presente no diretori
 Comando: `npm run test:bdd`
 
 ![exemplo de bdd](docs/bdd.png)
-
-## Instalação do projeto
-
-Este projeto está pronto para ser executado em um ambiente Docker. Por este motivo, será necessária apenas a instalação do Docker e/ou Kubernetes, não sendo necessária a instalação manual do projeto. Também não será necessária a instalação manual do banco de dados (MySQL).
-
-Caso não tenha o Docker instalado, siga as instruções para seu sistema operacional na [documentação oficial do Docker](https://docs.docker.com/get-docker/).
-
-Para executar em ambiente de desenvolvimento:
-
-- Faça o `fork` e `clone` este repositório em seu computador;
-- Entre no diretório local onde o repositório foi clonado;
-
-### Docker Compose
-
-Utilize o comando `docker compose up` para "construir" (_build_) e subir o servidor local, expondo a porta 3000 em `localhost`. Além do container da `api` também subirá o serviço `db` com o banco de dados de desenvolvimento.
-
-**IMPORTANTE:** Esta API está programada para ser acessada a partir de `http://localhost:3000` e o banco de dados utiliza a porta `3306`. Certifique-se de que não existam outros recursos ocupando as portas `3000` e `3306` antes de subir o projeto.
-
-Para derrubar o serviço, execute o comando `docker compose down`.
 
 ## Utilizacao
 
