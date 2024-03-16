@@ -50,14 +50,15 @@ class PedidoDataBaseRepository implements PedidoRepository {
   ): Promise<PedidoDTO | null> {
     const filter: {
       id: string;
-      clientId?: string;
+      clienteId?: string;
     } = {
       id,
     };
 
     if (clienteId) {
-      filter.clientId = clienteId;
+      filter.clienteId = clienteId;
     }
+    console.log(filter)
     return (await Pedido.findOne(filter)) as PedidoDTO;
   }
 
@@ -109,7 +110,7 @@ class PedidoDataBaseRepository implements PedidoRepository {
   ): Promise<Array<PedidoDTO> | null> {
     const filter: {
       status: { $in: any };
-      clientId?: string;
+      clienteId?: string;
     } = {
       status: status
         ? { $in: status }
@@ -119,9 +120,8 @@ class PedidoDataBaseRepository implements PedidoRepository {
     };
 
     if (clienteId) {
-      filter.clientId = clienteId;
+      filter.clienteId = clienteId;
     }
-    console.log(filter);
     return await Pedido.find(filter).sort({ updateAt: 1 }).select("-_id -__v");
   }
 }
