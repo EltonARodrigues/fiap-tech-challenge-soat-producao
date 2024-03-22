@@ -54,8 +54,8 @@ Fluxo da realizacao de um pedido:
 
 ### Relatórios OWASP ZAP
 Disponibilizado em formato html:
--  [Relatório Inicial](docs/owasp/producao_antes.html)
--  [Relatório Corrigido](docs/owasp/producao_depois.html)
+-  [Relatório Inicial](https://github.com/EltonARodrigues/fiap-tech-challenge-soat-producao/owasp/producao_antes.html)
+-  [Relatório Corrigido](https://github.com/EltonARodrigues/fiap-tech-challenge-soat-producao/owasp/producao_depois.html)
 
 ### Relatórios RIPD
 -  [RIPD](docs/RIPD.pdf)
