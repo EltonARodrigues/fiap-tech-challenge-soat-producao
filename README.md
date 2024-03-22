@@ -57,6 +57,9 @@ Disponibilizado em formato html:
 -  [Relatório Inicial](docs/owasp/producao_antes.html)
 -  [Relatório Corrigido](docs/owasp/producao_depois.html)
 
+### Relatórios RIPD
+-  [RIPD](docs/RIPD.pdf)
+
 ## Stack utilizada
 
 - Node.js v20
