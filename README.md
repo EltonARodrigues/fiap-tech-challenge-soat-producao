@@ -57,6 +57,9 @@ Disponibilizado em formato html:
 -  [Relatório Inicial](https://github.com/EltonARodrigues/fiap-tech-challenge-soat-producao/owasp/producao_antes.html)
 -  [Relatório Corrigido](https://github.com/EltonARodrigues/fiap-tech-challenge-soat-producao/owasp/producao_depois.html)
 
+### Relatórios RIPD
+-  [RIPD](docs/RIPD.pdf)
+
 ## Stack utilizada
 
 - Node.js v20
